@@ -54,7 +54,7 @@ public class JoueurTowa implements IJoueurTowa {
      * niveau
      */
     boolean posePossible(Case[][] plateau, Coordonnees coord, char couleur) {
-        return false; // TODO à vous de jouer !
+        return true; // TODO à vous de jouer !
     }
 
     /**
