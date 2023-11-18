@@ -54,7 +54,7 @@ public class JoueurTowa implements IJoueurTowa {
      * niveau
      */
     boolean posePossible(Case[][] plateau, Coordonnees coord, char couleur) {
-        return true; // TODO à vous de jouer !
+        return plateau[coord.ligne][coord.colonne].couleur == couleur || plateau[coord.ligne][coord.colonne].couleur == Case.CAR_VIDE; // TODO à vous de jouer !
     }
 
     /**
@@ -64,7 +64,23 @@ public class JoueurTowa implements IJoueurTowa {
      * @return le nombre de pions sur le plateau, de chaque couleur
      */
     static NbPions nbPions(Case[][] plateau) {
-        return new NbPions(0, 0); // TODO il y en aura besoin à un moment !
+        int nbPionsNoirs = 0;
+        int nbPionsBlancs = 0;
+        for (int i = 0; i < plateau.length; i++) {
+            for (int j = 0; j < plateau.length; j++) {
+                if (plateau[i][j].tourPresente()) {
+                    if (plateau[i][j].couleur == 'N') {
+                        nbPionsNoirs += plateau[i][j].hauteur;
+                    } else {
+                        nbPionsBlancs += plateau[i][j].hauteur;
+                    }
+
+                }
+
+            }
+
+        }
+        return new NbPions(nbPionsNoirs, nbPionsBlancs);
     }
 
     /**
@@ -72,15 +88,22 @@ public class JoueurTowa implements IJoueurTowa {
      *
      * @param coord coordonnées de la case où poser un pion
      * @param actions l'ensemble des actions possibles (en construction)
-     * @param nbPions le nombre de pions par couleur sur le plateau avant de 
+     * @param nbPions le nombre de pions par couleur sur le plateau avant de
      * jouer l'action
      * @param couleur la couleur du pion à ajouter
      */
     void ajoutActionPose(Coordonnees coord, ActionsPossibles actions,
             NbPions nbPions, char couleur) {
-        String action = "P" + coord.carLigne() + coord.carColonne() + "," 
-                + (nbPions.nbPionsNoirs + 1) + ","
-                + (nbPions.nbPionsBlancs);
+        String action;
+        if (couleur == Case.CAR_NOIR) {
+            action = "P" + coord.carLigne() + coord.carColonne() + ","
+                    + (nbPions.nbPionsNoirs + 1) + ","
+                    + (nbPions.nbPionsBlancs);
+        } else {
+            action = "P" + coord.carLigne() + coord.carColonne() + ","
+                    + (nbPions.nbPionsNoirs) + ","
+                    + (nbPions.nbPionsBlancs + 1);
+        }
         actions.ajouterAction(action);
     }
 }
