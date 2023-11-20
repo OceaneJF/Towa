@@ -54,7 +54,7 @@ public class JoueurTowa implements IJoueurTowa {
      * niveau
      */
     boolean posePossible(Case[][] plateau, Coordonnees coord, char couleur) {
-        return plateau[coord.ligne][coord.colonne].couleur == couleur || plateau[coord.ligne][coord.colonne].couleur == Case.CAR_VIDE; // TODO à vous de jouer !
+        return (plateau[coord.ligne][coord.colonne].couleur == couleur || plateau[coord.ligne][coord.colonne].couleur == Case.CAR_VIDE) && plateau[coord.ligne][coord.colonne].hauteur<4; // TODO à vous de jouer !
     }
 
     /**
