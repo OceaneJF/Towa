@@ -37,6 +37,9 @@ public class JoueurTowa implements IJoueurTowa {
                     // on ajoute l'action dans les actions possibles
                     ajoutActionPose(coord, actions, nbPions, couleurJoueur);
                 }
+                if (poseActivePossible(plateau, coord, couleurJoueur)) {
+                    ajoutPoseActive(coord, actions, nbPions, couleurJoueur, adjacente(coord, plateau, nbPions));
+                }
             }
         }
         System.out.println("actionsPossibles : fin");
@@ -54,7 +57,21 @@ public class JoueurTowa implements IJoueurTowa {
      * niveau
      */
     boolean posePossible(Case[][] plateau, Coordonnees coord, char couleur) {
-        return (plateau[coord.ligne][coord.colonne].couleur == couleur || plateau[coord.ligne][coord.colonne].couleur == Case.CAR_VIDE) && plateau[coord.ligne][coord.colonne].hauteur<4; // TODO à vous de jouer !
+        return (plateau[coord.ligne][coord.colonne].couleur == couleur || plateau[coord.ligne][coord.colonne].couleur == Case.CAR_VIDE) && plateau[coord.ligne][coord.colonne].hauteur < 4; // TODO à vous de jouer !
+    }
+
+    /**
+     * Indique s'il est possible d'activer une tour sur une case pour ce
+     * plateau, ce joueur, dans ce niveau.
+     *
+     * @param plateau le plateau
+     * @param coord coordonnées de la case à considérer
+     * @param couleur couleur du joueur
+     * @return vrai ssi l'activation d'une tour sur cette case est autorisée
+     * dans ce niveau
+     */
+    boolean poseActivePossible(Case[][] plateau, Coordonnees coord, char couleur) {
+        return plateau[coord.ligne][coord.colonne].couleur == couleur && plateau[coord.ligne][coord.colonne].couleur != Case.CAR_VIDE;
     }
 
     /**
@@ -105,5 +122,77 @@ public class JoueurTowa implements IJoueurTowa {
                     + (nbPions.nbPionsBlancs + 1);
         }
         actions.ajouterAction(action);
+    }
+
+    /**
+     * Ajout d'une action d'activation dans l'ensemble des actions possibles.
+     *
+     * @param coord coordonnées de la case où poser un pion
+     * @param actions l'ensemble des actions possibles (en construction)
+     * @param nbPions nbPions le nombre de pions par couleur sur le plateau
+     * avant l'activation
+     * @param couleur la couleur du pion que l'on veut activer
+     * @param decompte le nombre de pions a supprimer suite à l'activation
+     */
+    void ajoutPoseActive(Coordonnees coord, ActionsPossibles actions,
+            NbPions nbPions, char couleur, int decompte) {
+        String action;
+        if (couleur == Case.CAR_NOIR) {
+            action = "A" + coord.carLigne() + coord.carColonne() + ","
+                    + (nbPions.nbPionsNoirs) + ","
+                    + (nbPions.nbPionsBlancs - decompte);
+        } else {
+            action = "A" + coord.carLigne() + coord.carColonne() + ","
+                    + (nbPions.nbPionsNoirs - decompte) + ","
+                    + (nbPions.nbPionsBlancs);
+        }
+
+        System.out.println(action);
+        actions.ajouterAction(action);
+    }
+
+    /**
+     * Cette méthode permet de vérifier si les coordonnées passé en paramètre
+     * sont dans le plateau
+     *
+     * @param coord les coordonnée d'une case
+     * @param plateau le plateau de jeu
+     * @return vrai si les coordonnées sont dans l'intervalle du plateau faux
+     * sinon
+     */
+    static boolean estDansPlateau(Coordonnees coord, Case[][] plateau) {
+        return coord.ligne >= 0 && coord.ligne < plateau.length && coord.colonne >= 0 && coord.colonne < plateau.length;
+    }
+
+    /**
+     * Cette méthode permet de déterminer le nombre de pions de l'adversaire qui
+     * sont éliminés lorsque l'on active une tour, c'est à dire le nombre de
+     * pions adversaires voisins
+     *
+     * @param coord les coordonnées de la tour que l'on souhaite activer
+     * @param plateau le plateau du jeu sur lequel se trouve la tour
+     * @param nbPions le nombre de pionts noirs et blancs qu'il y a sur le
+     * plateau
+     * @return le nombre de pions de l'adversaire qui sont voisins a la tour du
+     * joueur et qui sont moins haute que la tour du joueur
+     */
+    static int adjacente(Coordonnees coord, Case[][] plateau, NbPions nbPions) {
+        int decompte = 0;
+        int[][] direction = {{1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1}};
+        for (int i = 0; i < direction.length; i++) {
+            Coordonnees suivante = new Coordonnees(coord.ligne + direction[i][0], coord.colonne + direction[i][1]);
+            if (estDansPlateau(suivante, plateau)) {
+
+                if (plateau[suivante.ligne][suivante.colonne].tourPresente()
+                        && plateau[suivante.ligne][suivante.colonne].couleur != plateau[coord.ligne][coord.colonne].couleur
+                        && plateau[suivante.ligne][suivante.colonne].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
+
+                    decompte += plateau[suivante.ligne][suivante.colonne].hauteur;
+
+                }
+
+            }
+        }
+        return decompte;
     }
 }
