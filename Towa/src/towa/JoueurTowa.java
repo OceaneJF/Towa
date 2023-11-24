@@ -35,10 +35,10 @@ public class JoueurTowa implements IJoueurTowa {
                 // si la pose d'un pion de cette couleur est possible sur cette case
                 if (posePossible(plateau, coord, couleurJoueur)) {
                     // on ajoute l'action dans les actions possibles
-                    ajoutActionPose(coord, actions, nbPions, couleurJoueur);
+                    ajoutActionPose(coord, actions, nbPions, couleurJoueur, voisines(coord, plateau, couleurJoueur));
                 }
                 if (poseActivePossible(plateau, coord, couleurJoueur)) {
-                    ajoutPoseActive(coord, actions, nbPions, couleurJoueur, adjacente(coord, plateau, nbPions));
+                    ajoutPoseActive(coord, actions, nbPions, couleurJoueur, adjacente(coord, plateau));
                 }
             }
         }
@@ -57,7 +57,9 @@ public class JoueurTowa implements IJoueurTowa {
      * niveau
      */
     boolean posePossible(Case[][] plateau, Coordonnees coord, char couleur) {
-        return (plateau[coord.ligne][coord.colonne].couleur == couleur || plateau[coord.ligne][coord.colonne].couleur == Case.CAR_VIDE) && plateau[coord.ligne][coord.colonne].hauteur < 4; // TODO à vous de jouer !
+        return (plateau[coord.ligne][coord.colonne].couleur == couleur
+                || plateau[coord.ligne][coord.colonne].couleur == Case.CAR_VIDE)
+                && plateau[coord.ligne][coord.colonne].hauteur < 4; // TODO à vous de jouer !
     }
 
     /**
@@ -110,16 +112,16 @@ public class JoueurTowa implements IJoueurTowa {
      * @param couleur la couleur du pion à ajouter
      */
     void ajoutActionPose(Coordonnees coord, ActionsPossibles actions,
-            NbPions nbPions, char couleur) {
+            NbPions nbPions, char couleur, int ajoutHauteur) {
         String action;
         if (couleur == Case.CAR_NOIR) {
             action = "P" + coord.carLigne() + coord.carColonne() + ","
-                    + (nbPions.nbPionsNoirs + 1) + ","
+                    + (nbPions.nbPionsNoirs + ajoutHauteur) + ","
                     + (nbPions.nbPionsBlancs);
         } else {
             action = "P" + coord.carLigne() + coord.carColonne() + ","
                     + (nbPions.nbPionsNoirs) + ","
-                    + (nbPions.nbPionsBlancs + 1);
+                    + (nbPions.nbPionsBlancs + ajoutHauteur);
         }
         actions.ajouterAction(action);
     }
@@ -146,8 +148,6 @@ public class JoueurTowa implements IJoueurTowa {
                     + (nbPions.nbPionsNoirs - decompte) + ","
                     + (nbPions.nbPionsBlancs);
         }
-
-        System.out.println(action);
         actions.ajouterAction(action);
     }
 
@@ -171,12 +171,10 @@ public class JoueurTowa implements IJoueurTowa {
      *
      * @param coord les coordonnées de la tour que l'on souhaite activer
      * @param plateau le plateau du jeu sur lequel se trouve la tour
-     * @param nbPions le nombre de pionts noirs et blancs qu'il y a sur le
-     * plateau
      * @return le nombre de pions de l'adversaire qui sont voisins a la tour du
      * joueur et qui sont moins haute que la tour du joueur
      */
-    static int adjacente(Coordonnees coord, Case[][] plateau, NbPions nbPions) {
+    static int adjacente(Coordonnees coord, Case[][] plateau) {
         int decompte = 0;
         int[][] direction = {{1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1}};
         for (int i = 0; i < direction.length; i++) {
@@ -194,5 +192,30 @@ public class JoueurTowa implements IJoueurTowa {
             }
         }
         return decompte;
+    }
+
+    /**
+     * Cette méthode renvoie 2 si les coordonnées passées en paramètre
+     * corresponde à un case vide voisines d'un pions adversaire et 1 sinon
+     *
+     * @param coord les coordonnées de la case ou on souhaite poser un pions
+     * @param plateau le plateau de jeu
+     * @param couleurJoueur la couleur du joueur
+     * @return 2 si les coordonnées passées en paramètre corresponde à un case
+     * vide voisines d'un pions adversaire et 1 sinon
+     */
+    static int voisines(Coordonnees coord, Case[][] plateau, char couleurJoueur) {
+        int ajoutHauteur = 1;
+        int[][] direction = {{1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1}};
+        for (int i = 0; i < direction.length; i++) {
+            Coordonnees suivante = new Coordonnees(coord.ligne + direction[i][0], coord.colonne + direction[i][1]);
+            if (estDansPlateau(suivante, plateau)) {
+                if (plateau[coord.ligne][coord.colonne].couleur == Case.CAR_VIDE && plateau[suivante.ligne][suivante.colonne].tourPresente()
+                        && plateau[suivante.ligne][suivante.colonne].couleur != couleurJoueur) {
+                    ajoutHauteur = 2;
+                }
+            }
+        }
+        return ajoutHauteur;
     }
 }
