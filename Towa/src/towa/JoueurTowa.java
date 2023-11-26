@@ -170,9 +170,8 @@ public class JoueurTowa implements IJoueurTowa {
      *
      * @param coord les coordonnées de la tour que l'on souhaite activer
      * @param plateau le plateau du jeu sur lequel se trouve la tour
-     * @return le nombre de pions de l'adversaire qui sont voisins a la tour du
-     * joueur ou sur la meme ligne ou sur la meme colonne et qui sont moins
-     * haute que la tour du joueur
+     * @return le nombre de pions de l'adversaire qui sont éliminés lorsque l'on
+     * active la tour dont les coordonnées sont passé en parametre
      */
     static int adjacente(Coordonnees coord, Case[][] plateau) {
         int decompte = diagonale(coord, plateau) + colonne(coord, plateau) + ligne(coord, plateau);
@@ -210,48 +209,78 @@ public class JoueurTowa implements IJoueurTowa {
 
     /**
      * Cette méthode permet de déterminber le nombre de pions adversaires qui se
-     * trouve sur la meme colonne que la tour dont les coordonnées sont passé en
-     * parametre et dont la hauteur est moins haute que celle-ci
+     * trouve sur la meme colonne et le plus proche de chaque cotés de la tour
+     * dont les coordonnées sont passé en parametre et dont la hauteur est moins
+     * haute que celle-ci
      *
      * @param coord les coordonnées de la tour que l'on souhaite activer
      * @param plateau le plateau du jeu sur lequel se trouve la tour
      * @return le nombre de pions adversaires qui se trouve sur la meme colonne
-     * que la tour que l'on souhaite activer et dont la hauteur est moins haute
-     * que celle-ci
+     * et le plus proche de la tour que l'on souhaite activer et dont la hauteur
+     * est moins haute que celle-ci
      */
     static int colonne(Coordonnees coord, Case[][] plateau) {
         int decompte = 0;
-        for (int i = 0; i < plateau.length; i++) {
-            if (plateau[i][coord.colonne].tourPresente()
-                    && plateau[i][coord.colonne].couleur != plateau[coord.ligne][coord.colonne].couleur
+        int i = coord.ligne - 1;
+        Coordonnees coord1 = new Coordonnees(coord.ligne - 1, coord.colonne);
+        if (estDansPlateau(coord1, plateau)) {
+            while (!plateau[i][coord.colonne].tourPresente() && i > 0) {
+                i--;
+            }
+            if (plateau[i][coord.colonne].couleur != plateau[coord.ligne][coord.colonne].couleur
                     && plateau[i][coord.colonne].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
                 decompte += plateau[i][coord.colonne].hauteur;
             }
-
+        }
+        int j = coord.ligne + 1;
+        Coordonnees coord2 = new Coordonnees(coord.ligne + 1, coord.colonne);
+        if (estDansPlateau(coord2, plateau)) {
+            while (!plateau[j][coord.colonne].tourPresente() && j < plateau.length - 1) {
+                j++;
+            }
+            if (plateau[j][coord.colonne].couleur != plateau[coord.ligne][coord.colonne].couleur
+                    && plateau[j][coord.colonne].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
+                decompte += plateau[j][coord.colonne].hauteur;
+            }
         }
         return decompte;
     }
 
     /**
      * Cette méthode permet de déterminber le nombre de pions adversaires qui se
-     * trouve sur la meme ligne que la tour dont les coordonnées sont passé en
-     * parametre et dont la hauteur est moins haute que celle-ci
+     * trouve sur la meme ligne et le plus proche des deux cotés de la tour dont
+     * les coordonnées sont passé en parametre et dont la hauteur est moins
+     * haute que celle-ci
      *
      * @param coord les coordonnées de la tour que l'on souhaite activer
      * @param plateau le plateau du jeu sur lequel se trouve la tour
-     * @return le nombre de pions adversaires qui se trouve sur la meme ligne
-     * que la tour que l'on souhaite activer et dont la hauteur est moins haute
-     * que celle-ci
+     * @return le nombre de pions adversaires qui se trouve sur la meme ligne et
+     * le plus proche de la tour que l'on souhaite activer et dont la hauteur
+     * est moins haute que celle-ci
      */
     static int ligne(Coordonnees coord, Case[][] plateau) {
         int decompte = 0;
-        for (int i = 0; i < plateau.length; i++) {
-            if (plateau[coord.ligne][i].tourPresente()
-                    && plateau[coord.ligne][i].couleur != plateau[coord.ligne][coord.colonne].couleur
+        int i = coord.colonne - 1;
+        Coordonnees coord1 = new Coordonnees(coord.ligne, coord.colonne - 1);
+        if (estDansPlateau(coord1, plateau)) {
+            while (!plateau[coord.ligne][i].tourPresente() && i > 0) {
+                i--;
+            }
+            if (plateau[coord.ligne][i].couleur != plateau[coord.ligne][coord.colonne].couleur
                     && plateau[coord.ligne][i].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
                 decompte += plateau[coord.ligne][i].hauteur;
             }
-
+        }
+        int j = coord.colonne + 1;
+        Coordonnees coord2 = new Coordonnees(coord.ligne, coord.colonne + 1);
+        if (estDansPlateau(coord2, plateau)) {
+            while (!plateau[coord.ligne][j].tourPresente() && j < plateau.length - 1) {
+                j++;
+            }
+            if (plateau[coord.ligne][j].couleur != plateau[coord.ligne][coord.colonne].couleur
+                    && plateau[coord.ligne][j].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
+                decompte += plateau[coord.ligne][j].hauteur;
+            }
         }
         return decompte;
     }
