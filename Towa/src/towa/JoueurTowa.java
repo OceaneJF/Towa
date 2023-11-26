@@ -38,7 +38,8 @@ public class JoueurTowa implements IJoueurTowa {
                     ajoutActionPose(coord, actions, nbPions, couleurJoueur, voisines(coord, plateau, couleurJoueur));
                 }
                 if (poseActivePossible(plateau, coord, couleurJoueur)) {
-                    ajoutPoseActive(coord, actions, nbPions, couleurJoueur, adjacente(coord, plateau));
+                    ajoutPoseActive(coord, actions, nbPions, couleurJoueur, adjacente(coord, plateau, true));
+                    ajoutPoseFusion(coord, actions, nbPions, couleurJoueur, adjacente(coord, plateau, false));
                 }
             }
         }
@@ -93,11 +94,8 @@ public class JoueurTowa implements IJoueurTowa {
                     } else {
                         nbPionsBlancs += plateau[i][j].hauteur;
                     }
-
                 }
-
             }
-
         }
         return new NbPions(nbPionsNoirs, nbPionsBlancs);
     }
@@ -129,10 +127,10 @@ public class JoueurTowa implements IJoueurTowa {
     /**
      * Ajout d'une action d'activation dans l'ensemble des actions possibles.
      *
-     * @param coord coordonnées de la case où poser un pion
+     * @param coord coordonnées de la case où activer un pion
      * @param actions l'ensemble des actions possibles (en construction)
-     * @param nbPions nbPions le nombre de pions par couleur sur le plateau
-     * avant l'activation
+     * @param nbPions le nombre de pions par couleur sur le plateau avant
+     * l'activation
      * @param couleur la couleur du pion que l'on veut activer
      * @param decompte le nombre de pions a supprimer suite à l'activation
      */
@@ -147,6 +145,31 @@ public class JoueurTowa implements IJoueurTowa {
             action = "A" + coord.carLigne() + coord.carColonne() + ","
                     + (nbPions.nbPionsNoirs - decompte) + ","
                     + (nbPions.nbPionsBlancs);
+        }
+        actions.ajouterAction(action);
+    }
+
+    /**
+     * Ajout d'une action de fusion dans l'ensemble des actions possibles.
+     *
+     * @param coord coordonnées de la case où fusionner un pion
+     * @param actions l'ensemble des actions possibles
+     * @param nbPions le nombre de pions par couleur sur le plateau avant la
+     * fusion
+     * @param couleur la couleur du pion que l'on veut fusionner
+     * @param decompte le nombre de pions a supprimer suite à la fusion
+     */
+    void ajoutPoseFusion(Coordonnees coord, ActionsPossibles actions,
+            NbPions nbPions, char couleur, int decompte) {
+        String action;
+        if (couleur == Case.CAR_NOIR) {
+            action = "F" + coord.carLigne() + coord.carColonne() + ","
+                    + (nbPions.nbPionsNoirs - decompte) + ","
+                    + (nbPions.nbPionsBlancs);
+        } else {
+            action = "F" + coord.carLigne() + coord.carColonne() + ","
+                    + (nbPions.nbPionsNoirs) + ","
+                    + (nbPions.nbPionsBlancs - decompte);
         }
         actions.ajouterAction(action);
     }
@@ -173,8 +196,18 @@ public class JoueurTowa implements IJoueurTowa {
      * @return le nombre de pions de l'adversaire qui sont éliminés lorsque l'on
      * active la tour dont les coordonnées sont passé en parametre
      */
-    static int adjacente(Coordonnees coord, Case[][] plateau) {
-        int decompte = diagonale(coord, plateau) + colonne(coord, plateau) + ligne(coord, plateau);
+    static int adjacente(Coordonnees coord, Case[][] plateau, boolean action) {
+        int decompte = 0;
+        if (action) {
+            decompte = diagonaleActive(coord, plateau) + colonneActive(coord, plateau) + ligneActive(coord, plateau);
+        } else {
+            int totale = diagonaleFusion(coord, plateau) + colonneFusion(coord, plateau) + ligneFusion(coord, plateau);
+            if (plateau[coord.ligne][coord.colonne].hauteur >= 4) {
+                decompte = totale;
+            } else if (totale != 0 && !((totale + plateau[coord.ligne][coord.colonne].hauteur) <= 4)) {
+                decompte = (diagonaleFusion(coord, plateau) + colonneFusion(coord, plateau) + ligneFusion(coord, plateau)) - (4 - plateau[coord.ligne][coord.colonne].hauteur);
+            }
+        }
         return decompte;
     }
 
@@ -189,7 +222,7 @@ public class JoueurTowa implements IJoueurTowa {
      * adjacentes de la tour que l'on souhaite activer et dont la hauteur est
      * moins haute que celle-ci
      */
-    static int diagonale(Coordonnees coord, Case[][] plateau) {
+    static int diagonaleActive(Coordonnees coord, Case[][] plateau) {
         int decompte = 0;
         int[][] direction = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
         for (int i = 0; i < direction.length; i++) {
@@ -199,6 +232,33 @@ public class JoueurTowa implements IJoueurTowa {
                 if (plateau[suivante.ligne][suivante.colonne].tourPresente()
                         && plateau[suivante.ligne][suivante.colonne].couleur != plateau[coord.ligne][coord.colonne].couleur
                         && plateau[suivante.ligne][suivante.colonne].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
+
+                    decompte += plateau[suivante.ligne][suivante.colonne].hauteur;
+                }
+            }
+        }
+        return decompte;
+    }
+
+    /**
+     * Cette méthode permet de déterminer le nombre de pions amis qui se trouve
+     * sur les diagonales adjacentes de la tour dont les coordonnées sont
+     * passées en parametre
+     *
+     * @param coord les coordonnées de la tour que l'on souhaite activer
+     * @param plateau le plateau du jeu sur lequel se trouve la tour
+     * @return le nombre de pions amis qui se trouvent sur les diagonales
+     * adjacentes de la tour que l'on souhaite fusionner
+     */
+    static int diagonaleFusion(Coordonnees coord, Case[][] plateau) {
+        int decompte = 0;
+        int[][] direction = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+        for (int i = 0; i < direction.length; i++) {
+            Coordonnees suivante = new Coordonnees(coord.ligne + direction[i][0], coord.colonne + direction[i][1]);
+            if (estDansPlateau(suivante, plateau)) {
+
+                if (plateau[suivante.ligne][suivante.colonne].tourPresente()
+                        && plateau[suivante.ligne][suivante.colonne].couleur == plateau[coord.ligne][coord.colonne].couleur) {
 
                     decompte += plateau[suivante.ligne][suivante.colonne].hauteur;
                 }
@@ -219,7 +279,7 @@ public class JoueurTowa implements IJoueurTowa {
      * et le plus proche de la tour que l'on souhaite activer et dont la hauteur
      * est moins haute que celle-ci
      */
-    static int colonne(Coordonnees coord, Case[][] plateau) {
+    static int colonneActive(Coordonnees coord, Case[][] plateau) {
         int decompte = 0;
         int i = coord.ligne - 1;
         Coordonnees coord1 = new Coordonnees(coord.ligne - 1, coord.colonne);
@@ -247,6 +307,41 @@ public class JoueurTowa implements IJoueurTowa {
     }
 
     /**
+     * Cette méthode permet de déterminer combien de pions amis proches sont
+     * présent sur la meme colonne que la tour dont les coordonnées sont passées
+     * en paramètre
+     *
+     * @param coord les coordonnées de la tour que l'on souhaite fusionner
+     * @param plateau le plateau du jeu sur lequel se trouve la tour
+     * @return le nombre de pions amis proches qui sont présent sur la meme
+     * colonne que la tour que l'on souhaite fusionner
+     */
+    static int colonneFusion(Coordonnees coord, Case[][] plateau) {
+        int decompte = 0;
+        int i = coord.ligne - 1;
+        Coordonnees coord1 = new Coordonnees(coord.ligne - 1, coord.colonne);
+        if (estDansPlateau(coord1, plateau)) {
+            while (!plateau[i][coord.colonne].tourPresente() && i > 0) {
+                i--;
+            }
+            if (plateau[i][coord.colonne].couleur == plateau[coord.ligne][coord.colonne].couleur) {
+                decompte += plateau[i][coord.colonne].hauteur;
+            }
+        }
+        int j = coord.ligne + 1;
+        Coordonnees coord2 = new Coordonnees(coord.ligne + 1, coord.colonne);
+        if (estDansPlateau(coord2, plateau)) {
+            while (!plateau[j][coord.colonne].tourPresente() && j < plateau.length - 1) {
+                j++;
+            }
+            if (plateau[j][coord.colonne].couleur == plateau[coord.ligne][coord.colonne].couleur) {
+                decompte += plateau[j][coord.colonne].hauteur;
+            }
+        }
+        return decompte;
+    }
+
+    /**
      * Cette méthode permet de déterminber le nombre de pions adversaires qui se
      * trouve sur la meme ligne et le plus proche des deux cotés de la tour dont
      * les coordonnées sont passé en parametre et dont la hauteur est moins
@@ -258,7 +353,7 @@ public class JoueurTowa implements IJoueurTowa {
      * le plus proche de la tour que l'on souhaite activer et dont la hauteur
      * est moins haute que celle-ci
      */
-    static int ligne(Coordonnees coord, Case[][] plateau) {
+    static int ligneActive(Coordonnees coord, Case[][] plateau) {
         int decompte = 0;
         int i = coord.colonne - 1;
         Coordonnees coord1 = new Coordonnees(coord.ligne, coord.colonne - 1);
@@ -279,6 +374,41 @@ public class JoueurTowa implements IJoueurTowa {
             }
             if (plateau[coord.ligne][j].couleur != plateau[coord.ligne][coord.colonne].couleur
                     && plateau[coord.ligne][j].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
+                decompte += plateau[coord.ligne][j].hauteur;
+            }
+        }
+        return decompte;
+    }
+
+    /**
+     * Cette méthode permet de déterminer combien de pions amis proches sont
+     * présent sur la meme ligne que la tour dont les coordonnées sont passées
+     * en paramètre
+     *
+     * @param coord les coordonnées de la tour que l'on souhaite fusionner
+     * @param plateau le plateau du jeu sur lequel se trouve la tour
+     * @return le nombre de pions amis proches qui sont présent sur la meme
+     * ligne que la tour que l'on souhaite fusionner
+     */
+    static int ligneFusion(Coordonnees coord, Case[][] plateau) {
+        int decompte = 0;
+        int i = coord.colonne - 1;
+        Coordonnees coord1 = new Coordonnees(coord.ligne, coord.colonne - 1);
+        if (estDansPlateau(coord1, plateau)) {
+            while (!plateau[coord.ligne][i].tourPresente() && i > 0) {
+                i--;
+            }
+            if (plateau[coord.ligne][i].couleur == plateau[coord.ligne][coord.colonne].couleur) {
+                decompte += plateau[coord.ligne][i].hauteur;
+            }
+        }
+        int j = coord.colonne + 1;
+        Coordonnees coord2 = new Coordonnees(coord.ligne, coord.colonne + 1);
+        if (estDansPlateau(coord2, plateau)) {
+            while (!plateau[coord.ligne][j].tourPresente() && j < plateau.length - 1) {
+                j++;
+            }
+            if (plateau[coord.ligne][j].couleur == plateau[coord.ligne][coord.colonne].couleur) {
                 decompte += plateau[coord.ligne][j].hauteur;
             }
         }
