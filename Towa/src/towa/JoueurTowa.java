@@ -166,17 +166,33 @@ public class JoueurTowa implements IJoueurTowa {
 
     /**
      * Cette méthode permet de déterminer le nombre de pions de l'adversaire qui
-     * sont éliminés lorsque l'on active une tour, c'est à dire le nombre de
-     * pions adversaires voisins
+     * sont éliminés lorsque l'on active une tour
      *
      * @param coord les coordonnées de la tour que l'on souhaite activer
      * @param plateau le plateau du jeu sur lequel se trouve la tour
      * @return le nombre de pions de l'adversaire qui sont voisins a la tour du
-     * joueur et qui sont moins haute que la tour du joueur
+     * joueur ou sur la meme ligne ou sur la meme colonne et qui sont moins
+     * haute que la tour du joueur
      */
     static int adjacente(Coordonnees coord, Case[][] plateau) {
+        int decompte = diagonale(coord, plateau) + colonne(coord, plateau) + ligne(coord, plateau);
+        return decompte;
+    }
+
+    /**
+     * Cette méthode permet de déterminber le nombre de pions adversaires qui se
+     * trouve sur les diagonales adjacentes de la tour dont les coordonnées sont
+     * passé en parametre et qui sont moins haute que celui-ci
+     *
+     * @param coord les coordonnées de la tour que l'on souhaite activer
+     * @param plateau le plateau du jeu sur lequel se trouve la tour
+     * @return le nombre de pions adversaires qui se trouve sur les diagonales
+     * adjacentes de la tour que l'on souhaite activer et dont la hauteur est
+     * moins haute que celle-ci
+     */
+    static int diagonale(Coordonnees coord, Case[][] plateau) {
         int decompte = 0;
-        int[][] direction = {{1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1}};
+        int[][] direction = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
         for (int i = 0; i < direction.length; i++) {
             Coordonnees suivante = new Coordonnees(coord.ligne + direction[i][0], coord.colonne + direction[i][1]);
             if (estDansPlateau(suivante, plateau)) {
@@ -186,10 +202,56 @@ public class JoueurTowa implements IJoueurTowa {
                         && plateau[suivante.ligne][suivante.colonne].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
 
                     decompte += plateau[suivante.ligne][suivante.colonne].hauteur;
-
                 }
-
             }
+        }
+        return decompte;
+    }
+
+    /**
+     * Cette méthode permet de déterminber le nombre de pions adversaires qui se
+     * trouve sur la meme colonne que la tour dont les coordonnées sont passé en
+     * parametre et dont la hauteur est moins haute que celle-ci
+     *
+     * @param coord les coordonnées de la tour que l'on souhaite activer
+     * @param plateau le plateau du jeu sur lequel se trouve la tour
+     * @return le nombre de pions adversaires qui se trouve sur la meme colonne
+     * que la tour que l'on souhaite activer et dont la hauteur est moins haute
+     * que celle-ci
+     */
+    static int colonne(Coordonnees coord, Case[][] plateau) {
+        int decompte = 0;
+        for (int i = 0; i < plateau.length; i++) {
+            if (plateau[i][coord.colonne].tourPresente()
+                    && plateau[i][coord.colonne].couleur != plateau[coord.ligne][coord.colonne].couleur
+                    && plateau[i][coord.colonne].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
+                decompte += plateau[i][coord.colonne].hauteur;
+            }
+
+        }
+        return decompte;
+    }
+
+    /**
+     * Cette méthode permet de déterminber le nombre de pions adversaires qui se
+     * trouve sur la meme ligne que la tour dont les coordonnées sont passé en
+     * parametre et dont la hauteur est moins haute que celle-ci
+     *
+     * @param coord les coordonnées de la tour que l'on souhaite activer
+     * @param plateau le plateau du jeu sur lequel se trouve la tour
+     * @return le nombre de pions adversaires qui se trouve sur la meme ligne
+     * que la tour que l'on souhaite activer et dont la hauteur est moins haute
+     * que celle-ci
+     */
+    static int ligne(Coordonnees coord, Case[][] plateau) {
+        int decompte = 0;
+        for (int i = 0; i < plateau.length; i++) {
+            if (plateau[coord.ligne][i].tourPresente()
+                    && plateau[coord.ligne][i].couleur != plateau[coord.ligne][coord.colonne].couleur
+                    && plateau[coord.ligne][i].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
+                decompte += plateau[coord.ligne][i].hauteur;
+            }
+
         }
         return decompte;
     }

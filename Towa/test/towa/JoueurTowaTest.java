@@ -21,7 +21,8 @@ public class JoueurTowaTest {
         //testActionsPossibles_niveau2();
         //testActionsPossibles_niveau3();
         //testActionsPossibles_niveau4();
-        testActionsPossibles_niveau5();
+        //testActionsPossibles_niveau5();
+        testActionsPossibles_niveau6();
     }
 
     /**
@@ -256,6 +257,64 @@ public class JoueurTowaTest {
 
     }
 
+    public void testActionsPossibles_niveau6() {
+        JoueurTowa joueur = new JoueurTowa();
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU4);
+        // sur le plateau initial : 27 pions noirs et 20 pions blancs
+        int niveau = 4;
+        // 1 - joueur noir
+        char couleur = Case.CAR_NOIR;
+        // on lance actionsPossibles
+        String[] actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, couleur, niveau);
+        ActionsPossibles actionsPossibles
+                = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        actionsPossibles.afficher();
+        //pose sur case vide : possible
+        assertTrue(actionsPossibles.contient("PaP,28,20"));
+        // pose sur case de même couleur : possible
+        assertTrue(actionsPossibles.contient("PbA,28,20"));
+        // pose sur case de couleur opposée : impossible
+        assertFalse(actionsPossibles.contient("PaA,28,20"));
+        // pose sur case de même couleur et hauteur > 1 et hauteur < 4 : possible
+        assertTrue(actionsPossibles.contient("PlE,28,20"));
+        // pose sur une case de meme couleur et de hauteur > 4 : impossible
+        assertFalse(actionsPossibles.contient("PcK,28,20"));
+        // test pour l'activation 
+        assertTrue(actionsPossibles.contient("AlE,27,15"));
+        assertTrue(actionsPossibles.contient("AnG,27,19"));
+        assertTrue(actionsPossibles.contient("AcK,27,16"));
+        // test pour la pose sur une case voisine à un adversaire 
+        assertTrue(actionsPossibles.contient("PaB,29,20"));
+        assertTrue(actionsPossibles.contient("PiH,28,20"));
+        assertFalse(actionsPossibles.contient("PmK,29,20"));
+
+        // 2 - joueur blanc
+        couleur = Case.CAR_BLANC;
+        // on lance actionsPossibles
+        actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, couleur, niveau);
+        actionsPossibles = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        // pose sur case vide : possible
+        actionsPossibles.afficher();
+        assertTrue(actionsPossibles.contient("PpP,27,21"));
+        // pose sur case de même couleur : possible
+        assertTrue(actionsPossibles.contient("PaG,27,21"));
+        // pose sur case de couleur opposée : impossible
+        assertFalse(actionsPossibles.contient("PbA,27,21"));
+        // pose sur case de même couleur et hauteur > 1 et de hauteur < 4 : possible
+        assertTrue(actionsPossibles.contient("PmF,27,21"));
+        // pose sur une case de meme couleur et de hauteur >= 4 : impossible
+        assertFalse(actionsPossibles.contient("PlF,27,21"));
+        // test pour l'activation 
+        assertTrue(actionsPossibles.contient("AlF,19,20"));
+        assertTrue(actionsPossibles.contient("AmF,23,20"));
+        assertTrue(actionsPossibles.contient("ApG,21,20"));
+        //test pour la pose sur une case voisine à un adversaire 
+        assertTrue(actionsPossibles.contient("PkF,27,22"));
+        assertTrue(actionsPossibles.contient("PbD,27,21"));
+        assertFalse(actionsPossibles.contient("PaH,27,22"));
+
+    }
+
     @Test
     public void testNbPions() {
         // à décommenter le moment venu...
@@ -417,15 +476,41 @@ public class JoueurTowaTest {
     public void testadjacente() {
 
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU4);
-        Coordonnees coordTest1 = new Coordonnees(12, 5);
-        assertEquals(3, JoueurTowa.adjacente(coordTest1, plateau));
+        Coordonnees coordTest1 = Coordonnees.depuisCars('l', 'F');
+        assertEquals(8, JoueurTowa.adjacente(coordTest1, plateau));
 
-        Coordonnees coordTest2 = new Coordonnees(0, 0);
-        assertEquals(1, JoueurTowa.adjacente(coordTest2, plateau));
+        Coordonnees coordTest2 = Coordonnees.depuisCars('p', 'G');
+        assertEquals(6, JoueurTowa.adjacente(coordTest2, plateau));
 
-        Coordonnees coordTest3 = new Coordonnees(15, 6);
-        assertEquals(3, JoueurTowa.adjacente(coordTest3, plateau));
+        Coordonnees coordTest3 = Coordonnees.depuisCars('l', 'E');
+        assertEquals(5, JoueurTowa.adjacente(coordTest3, plateau));
 
+    }
+
+    @Test
+    public void testligne() {
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU4);
+        Coordonnees coordTest1 = Coordonnees.depuisCars('c', 'K');
+        assertEquals(3, JoueurTowa.ligne(coordTest1, plateau));
+
+        Coordonnees coordTest2 = Coordonnees.depuisCars('l', 'F');
+        assertEquals(3, JoueurTowa.ligne(coordTest2, plateau));
+
+        Coordonnees coordTest3 = Coordonnees.depuisCars('m', 'F');
+        assertEquals(2, JoueurTowa.ligne(coordTest3, plateau));
+    }
+
+    @Test
+    public void testcolonne() {
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU4);
+        Coordonnees coordTest1 = Coordonnees.depuisCars('p', 'G');
+        assertEquals(3, JoueurTowa.colonne(coordTest1, plateau));
+
+        Coordonnees coordTest2 = Coordonnees.depuisCars('l', 'F');
+        assertEquals(3, JoueurTowa.colonne(coordTest2, plateau));
+
+        Coordonnees coordTest3 = Coordonnees.depuisCars('l', 'E');
+        assertEquals(2, JoueurTowa.colonne(coordTest3, plateau));
     }
 
     @Test
