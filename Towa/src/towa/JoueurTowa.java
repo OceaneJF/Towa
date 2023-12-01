@@ -9,6 +9,13 @@ import java.util.Date;
  */
 public class JoueurTowa implements IJoueurTowa {
 
+    public static final boolean FUSION = false;
+    public static final boolean ACTIVATION = true;
+    public static final int OUEST = 1;
+    public static final int EST = 2;
+    public static final int NORD = 3;
+    public static final int SUD = 4;
+
     /**
      * Cette méthode renvoie, pour un plateau donné et un joueur donné, toutes
      * les actions possibles pour ce joueur.
@@ -38,10 +45,14 @@ public class JoueurTowa implements IJoueurTowa {
                     ajoutActionPose(coord, actions, nbPions, couleurJoueur, voisines(coord, plateau, couleurJoueur));
                 }
                 if (poseActivePossible(plateau, coord, couleurJoueur)) {
-                    ajoutPoseActive(coord, actions, nbPions, couleurJoueur, adjacente(coord, plateau, true));
-                    ajoutPoseFusion(coord, actions, nbPions, couleurJoueur, adjacente(coord, plateau, false));
+                    ajoutPoseActive(coord, actions, nbPions, couleurJoueur, adjacente(coord, plateau, ACTIVATION));
+                    ajoutPoseFusion(coord, actions, nbPions, couleurJoueur, adjacente(coord, plateau, FUSION));
                 }
             }
+        }
+        int[] directions = {OUEST, EST, NORD, SUD};
+        for (int direction : directions) {
+            ajoutKamikaze(actions, nbPions, direction, plateau);
         }
         System.out.println("actionsPossibles : fin");
         return actions.nettoyer();
@@ -145,6 +156,43 @@ public class JoueurTowa implements IJoueurTowa {
             action = "A" + coord.carLigne() + coord.carColonne() + ","
                     + (nbPions.nbPionsNoirs - decompte) + ","
                     + (nbPions.nbPionsBlancs);
+        }
+        actions.ajouterAction(action);
+    }
+
+    /**
+     * Ajout d'une action chat kamikaze dans l'ensembles des actions possible
+     *
+     * @param actions l'ensemble des actions possibles (en construction)
+     * @param nbPions le nombre de pions par couleur sur le plateau avant
+     * l'action chat kamikaze
+     * @param direction la direction de l'action chat kamikaze
+     * @param plateau le plateau de jeu
+     */
+    void ajoutKamikaze(ActionsPossibles actions,
+            NbPions nbPions, int direction, Case[][] plateau) {
+        String action = null;
+        switch (direction) {
+            case 1:
+                action = "CO,"
+                        + (nbPions.nbPionsNoirs - ouest(Case.CAR_NOIR, plateau)) + ","
+                        + (nbPions.nbPionsBlancs - ouest(Case.CAR_BLANC, plateau));
+                break;
+            case 2:
+                action = "CE,"
+                        + (nbPions.nbPionsNoirs - est(Case.CAR_NOIR, plateau)) + ","
+                        + (nbPions.nbPionsBlancs - est(Case.CAR_BLANC, plateau));
+                break;
+            case 3:
+                action = "CN,"
+                        + (nbPions.nbPionsNoirs - nord(Case.CAR_NOIR, plateau)) + ","
+                        + (nbPions.nbPionsBlancs - nord(Case.CAR_BLANC, plateau));
+                break;
+            case 4:
+                action = "CS,"
+                        + (nbPions.nbPionsNoirs - sud(Case.CAR_NOIR, plateau)) + ","
+                        + (nbPions.nbPionsBlancs - sud(Case.CAR_BLANC, plateau));
+                break;
         }
         actions.ajouterAction(action);
     }
@@ -438,5 +486,101 @@ public class JoueurTowa implements IJoueurTowa {
             }
         }
         return ajoutHauteur;
+    }
+
+    /**
+     * Cette fonction permet de déterminer le nombre de pions de la meme couleur
+     * du joueur qui sont éliminé lors de l'action chat kamikase avec la
+     * direction ouest CO
+     *
+     * @param couleurJoueur la couleur du joueur
+     * @param plateau le plateau de jeu
+     * @return le nombre de pions de la meme couleur du joueur qui sont éliminé
+     * lors de l'action chat kamikase avec la direction ouest CO
+     */
+    static int ouest(char couleurJoueur, Case[][] plateau) {
+        int decompte = 0;
+        for (int i = 0; i < plateau.length; i++) {
+            int j = 0;
+            while (j < plateau.length-1 && plateau[i][j].couleur == Case.CAR_VIDE) {
+                j++;
+            }
+            if (plateau[i][j].couleur == couleurJoueur) {
+                decompte += plateau[i][j].hauteur;
+            }
+        }
+        return decompte;
+    }
+
+    /**
+     * Cette fonction permet de déterminer le nombre de pions de la meme couleur
+     * du joueur qui sont éliminé lors de l'action chat kamikase avec la
+     * direction est CE
+     *
+     * @param couleurJoueur la couleur du joueur
+     * @param plateau le plateau de jeu
+     * @return le nombre de pions de la meme couleur du joueur qui sont éliminé
+     * lors de l'action chat kamikase avec la direction est CE
+     */
+    static int est(char couleurJoueur, Case[][] plateau) {
+        int decompte = 0;
+        for (int i = 0; i < plateau.length; i++) {
+            int j = plateau.length - 1;
+            while (j > 0 && plateau[i][j].couleur == Case.CAR_VIDE) {
+                j--;
+            }
+            if (plateau[i][j].couleur == couleurJoueur) {
+                decompte += plateau[i][j].hauteur;
+            }
+        }
+        return decompte;
+    }
+
+    /**
+     * Cette fonction permet de déterminer le nombre de pions de la meme couleur
+     * du joueur qui sont éliminé lors de l'action chat kamikase avec la
+     * direction nord CN
+     *
+     * @param couleurJoueur la couleur du joueur
+     * @param plateau le plateau de jeu
+     * @return le nombre de pions de la meme couleur du joueur qui sont éliminé
+     * lors de l'action chat kamikase avec la direction nord CN
+     */
+    static int nord(char couleurJoueur, Case[][] plateau) {
+        int decompte = 0;
+        for (int i = 0; i < plateau.length; i++) {
+            int j = 0;
+            while (j < plateau.length -1 && plateau[j][i].couleur == Case.CAR_VIDE) {
+                j++;
+            }
+            if (plateau[j][i].couleur == couleurJoueur) {
+                decompte += plateau[j][i].hauteur;
+            }
+        }
+        return decompte;
+    }
+
+    /**
+     * Cette fonction permet de déterminer le nombre de pions de la meme couleur
+     * du joueur qui sont éliminé lors de l'action chat kamikase avec la
+     * direction sud CS
+     *
+     * @param couleurJoueur la couleur du joueur
+     * @param plateau le plateau de jeu
+     * @return le nombre de pions de la meme couleur du joueur qui sont éliminé
+     * lors de l'action chat kamikase avec la direction sud CS
+     */
+    static int sud(char couleurJoueur, Case[][] plateau) {
+        int decompte = 0;
+        for (int i = 0; i < plateau.length; i++) {
+            int j = plateau.length - 1;
+            while (j > 0 && plateau[j][i].couleur == Case.CAR_VIDE) {
+                j--;
+            }
+            if ( plateau[j][i].couleur == couleurJoueur) {
+                decompte += plateau[j][i].hauteur;
+            }
+        }
+        return decompte;
     }
 }
