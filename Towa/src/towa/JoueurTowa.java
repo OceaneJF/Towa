@@ -69,9 +69,15 @@ public class JoueurTowa implements IJoueurTowa {
      * niveau
      */
     boolean posePossible(Case[][] plateau, Coordonnees coord, char couleur) {
-        return (plateau[coord.ligne][coord.colonne].couleur == couleur
+        boolean possible = false;
+        if ((plateau[coord.ligne][coord.colonne].couleur == couleur
                 || plateau[coord.ligne][coord.colonne].couleur == Case.CAR_VIDE)
-                && plateau[coord.ligne][coord.colonne].hauteur < 4; // TODO à vous de jouer !
+                && niveau(plateau[coord.ligne][coord.colonne]) < 4) {
+            if (voisines(coord, plateau, couleur)+niveau(plateau[coord.ligne][coord.colonne])<=4) {
+                possible = true;
+            }
+        }
+        return possible;
     }
 
     /**
@@ -237,12 +243,12 @@ public class JoueurTowa implements IJoueurTowa {
 
     /**
      * Cette méthode permet de déterminer le nombre de pions de l'adversaire qui
-     * sont éliminés lorsque l'on active une tour
+     * sont éliminés lorsque l'on active une tour ou lorsqu'on décide de faire une fusion 
      *
      * @param coord les coordonnées de la tour que l'on souhaite activer
      * @param plateau le plateau du jeu sur lequel se trouve la tour
      * @return le nombre de pions de l'adversaire qui sont éliminés lorsque l'on
-     * active la tour dont les coordonnées sont passé en parametre
+     * active ou fusionne la tour dont les coordonnées sont passé en parametre
      */
     static int adjacente(Coordonnees coord, Case[][] plateau, boolean action) {
         int decompte = 0;
@@ -250,10 +256,10 @@ public class JoueurTowa implements IJoueurTowa {
             decompte = diagonaleActive(coord, plateau) + colonneActive(coord, plateau) + ligneActive(coord, plateau);
         } else {
             int totale = diagonaleFusion(coord, plateau) + colonneFusion(coord, plateau) + ligneFusion(coord, plateau);
-            if (plateau[coord.ligne][coord.colonne].hauteur >= 4) {
+            if (niveau(plateau[coord.ligne][coord.colonne]) >= 4) {
                 decompte = totale;
-            } else if (totale != 0 && !((totale + plateau[coord.ligne][coord.colonne].hauteur) <= 4)) {
-                decompte = (diagonaleFusion(coord, plateau) + colonneFusion(coord, plateau) + ligneFusion(coord, plateau)) - (4 - plateau[coord.ligne][coord.colonne].hauteur);
+            } else if (totale != 0 && !((totale + niveau(plateau[coord.ligne][coord.colonne])) <= 4)) {
+                decompte = totale - (4 - niveau(plateau[coord.ligne][coord.colonne]));
             }
         }
         return decompte;
@@ -262,13 +268,13 @@ public class JoueurTowa implements IJoueurTowa {
     /**
      * Cette méthode permet de déterminber le nombre de pions adversaires qui se
      * trouve sur les diagonales adjacentes de la tour dont les coordonnées sont
-     * passé en parametre et qui sont moins haute que celui-ci
+     * passé en parametre et qui d'un niveau plus bas que celui-ci
      *
      * @param coord les coordonnées de la tour que l'on souhaite activer
      * @param plateau le plateau du jeu sur lequel se trouve la tour
      * @return le nombre de pions adversaires qui se trouve sur les diagonales
-     * adjacentes de la tour que l'on souhaite activer et dont la hauteur est
-     * moins haute que celle-ci
+     * adjacentes de la tour que l'on souhaite activer et dont le niveau est
+     * plus bas que celle-ci
      */
     static int diagonaleActive(Coordonnees coord, Case[][] plateau) {
         int decompte = 0;
@@ -279,7 +285,7 @@ public class JoueurTowa implements IJoueurTowa {
 
                 if (plateau[suivante.ligne][suivante.colonne].tourPresente()
                         && plateau[suivante.ligne][suivante.colonne].couleur != plateau[coord.ligne][coord.colonne].couleur
-                        && plateau[suivante.ligne][suivante.colonne].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
+                        && niveau(plateau[suivante.ligne][suivante.colonne]) < niveau(plateau[coord.ligne][coord.colonne])) {
 
                     decompte += plateau[suivante.ligne][suivante.colonne].hauteur;
                 }
@@ -318,14 +324,14 @@ public class JoueurTowa implements IJoueurTowa {
     /**
      * Cette méthode permet de déterminber le nombre de pions adversaires qui se
      * trouve sur la meme colonne et le plus proche de chaque cotés de la tour
-     * dont les coordonnées sont passé en parametre et dont la hauteur est moins
-     * haute que celle-ci
+     * dont les coordonnées sont passé en parametre et dont le niveau est moins
+     * haut que celle-ci
      *
      * @param coord les coordonnées de la tour que l'on souhaite activer
      * @param plateau le plateau du jeu sur lequel se trouve la tour
      * @return le nombre de pions adversaires qui se trouve sur la meme colonne
-     * et le plus proche de la tour que l'on souhaite activer et dont la hauteur
-     * est moins haute que celle-ci
+     * et le plus proche de la tour que l'on souhaite activer et dont le niveau
+     * est moins haut que celle-ci
      */
     static int colonneActive(Coordonnees coord, Case[][] plateau) {
         int decompte = 0;
@@ -336,7 +342,7 @@ public class JoueurTowa implements IJoueurTowa {
                 i--;
             }
             if (plateau[i][coord.colonne].couleur != plateau[coord.ligne][coord.colonne].couleur
-                    && plateau[i][coord.colonne].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
+                    && niveau(plateau[i][coord.colonne]) < niveau(plateau[coord.ligne][coord.colonne])) {
                 decompte += plateau[i][coord.colonne].hauteur;
             }
         }
@@ -347,7 +353,7 @@ public class JoueurTowa implements IJoueurTowa {
                 j++;
             }
             if (plateau[j][coord.colonne].couleur != plateau[coord.ligne][coord.colonne].couleur
-                    && plateau[j][coord.colonne].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
+                    &&niveau( plateau[j][coord.colonne]) < niveau(plateau[coord.ligne][coord.colonne])) {
                 decompte += plateau[j][coord.colonne].hauteur;
             }
         }
@@ -392,14 +398,14 @@ public class JoueurTowa implements IJoueurTowa {
     /**
      * Cette méthode permet de déterminber le nombre de pions adversaires qui se
      * trouve sur la meme ligne et le plus proche des deux cotés de la tour dont
-     * les coordonnées sont passé en parametre et dont la hauteur est moins
-     * haute que celle-ci
+     * les coordonnées sont passé en parametre et dont le niveau est moins
+     * haut que celle-ci
      *
      * @param coord les coordonnées de la tour que l'on souhaite activer
      * @param plateau le plateau du jeu sur lequel se trouve la tour
      * @return le nombre de pions adversaires qui se trouve sur la meme ligne et
-     * le plus proche de la tour que l'on souhaite activer et dont la hauteur
-     * est moins haute que celle-ci
+     * le plus proche de la tour que l'on souhaite activer et dont le niveau
+     * est moins haut que celle-ci
      */
     static int ligneActive(Coordonnees coord, Case[][] plateau) {
         int decompte = 0;
@@ -410,7 +416,7 @@ public class JoueurTowa implements IJoueurTowa {
                 i--;
             }
             if (plateau[coord.ligne][i].couleur != plateau[coord.ligne][coord.colonne].couleur
-                    && plateau[coord.ligne][i].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
+                    && niveau(plateau[coord.ligne][i]) < niveau(plateau[coord.ligne][coord.colonne])) {
                 decompte += plateau[coord.ligne][i].hauteur;
             }
         }
@@ -421,7 +427,7 @@ public class JoueurTowa implements IJoueurTowa {
                 j++;
             }
             if (plateau[coord.ligne][j].couleur != plateau[coord.ligne][coord.colonne].couleur
-                    && plateau[coord.ligne][j].hauteur < plateau[coord.ligne][coord.colonne].hauteur) {
+                    && niveau(plateau[coord.ligne][j]) < niveau(plateau[coord.ligne][coord.colonne])) {
                 decompte += plateau[coord.ligne][j].hauteur;
             }
         }
@@ -502,7 +508,7 @@ public class JoueurTowa implements IJoueurTowa {
         int decompte = 0;
         for (int i = 0; i < plateau.length; i++) {
             int j = 0;
-            while (j < plateau.length-1 && plateau[i][j].couleur == Case.CAR_VIDE) {
+            while (j < plateau.length - 1 && plateau[i][j].couleur == Case.CAR_VIDE) {
                 j++;
             }
             if (plateau[i][j].couleur == couleurJoueur) {
@@ -550,7 +556,7 @@ public class JoueurTowa implements IJoueurTowa {
         int decompte = 0;
         for (int i = 0; i < plateau.length; i++) {
             int j = 0;
-            while (j < plateau.length -1 && plateau[j][i].couleur == Case.CAR_VIDE) {
+            while (j < plateau.length - 1 && plateau[j][i].couleur == Case.CAR_VIDE) {
                 j++;
             }
             if (plateau[j][i].couleur == couleurJoueur) {
@@ -577,10 +583,18 @@ public class JoueurTowa implements IJoueurTowa {
             while (j > 0 && plateau[j][i].couleur == Case.CAR_VIDE) {
                 j--;
             }
-            if ( plateau[j][i].couleur == couleurJoueur) {
+            if (plateau[j][i].couleur == couleurJoueur) {
                 decompte += plateau[j][i].hauteur;
             }
         }
         return decompte;
+    }
+    
+     /**
+     * Cette méthode permet de déterminer le niveau d'une case 
+     * @return le niveau de la case 
+     */
+    static int niveau(Case c) {
+        return c.hauteur + c.altitude;
     }
 }
