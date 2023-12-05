@@ -29,7 +29,8 @@ public class JoueurTowaTest {
         //testActionsPossibles_niveau7();
         //testActionsPossibles_niveau8();
         //testActionsPossibles_niveau9();
-        testActionsPossibles_niveau10();
+        //testActionsPossibles_niveau10();
+        testActionsPossibles_niveau11();
     }
 
     /**
@@ -519,8 +520,8 @@ public class JoueurTowaTest {
         assertTrue(actionsPossibles.contient("CS,18,15"));
 
     }
-    
-   public void testActionsPossibles_niveau10() {
+
+    public void testActionsPossibles_niveau10() {
         JoueurTowa joueur = new JoueurTowa();
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU10);
         // sur le plateau initial : 3 pions noirs et 19 pions blancs
@@ -590,6 +591,86 @@ public class JoueurTowaTest {
 
     }
 
+    public void testActionsPossibles_niveau11() {
+        JoueurTowa joueur = new JoueurTowa();
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU10);
+        // sur le plateau initial : 3 pions noirs et 19 pions blancs
+        int niveau = 11;
+        // 1 - joueur noir
+        char couleur = Case.CAR_NOIR;
+        // on lance actionsPossibles
+        String[] actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, couleur, niveau);
+        ActionsPossibles actionsPossibles
+                = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        actionsPossibles.afficher();
+        //pose sur case vide : possible
+        assertTrue(actionsPossibles.contient("PaP,4,19"));
+        // pose sur case de même couleur : possible
+        assertTrue(actionsPossibles.contient("PbD,4,19"));
+        // pose sur case de couleur opposée : impossible
+        assertFalse(actionsPossibles.contient("PbA,4,19"));
+        // pose sur une case de meme couleur et de niveau >= 4 : impossible
+        assertFalse(actionsPossibles.contient("PbC,4,19"));
+        // test pour l'activation 
+        assertTrue(actionsPossibles.contient("AbC,3,13"));
+        assertTrue(actionsPossibles.contient("AbD,3,19"));
+        // test pour la pose sur une case voisine à un adversaire 
+        assertTrue(actionsPossibles.contient("PdB,5,19"));
+        assertTrue(actionsPossibles.contient("PdD,5,19"));
+        assertFalse(actionsPossibles.contient("PgC,5,19"));
+        // test pour la fusion 
+        assertTrue(actionsPossibles.contient("FbD,3,19"));
+        assertTrue(actionsPossibles.contient("FbC,2,19"));
+        assertFalse(actionsPossibles.contient("FbE,2,19"));
+        //test pour l'action magie
+        assertTrue(actionsPossibles.contient("MbC,3,19"));
+        assertTrue(actionsPossibles.contient("MbD,3,19"));
+        
+
+        // 2 - joueur blanc
+        couleur = Case.CAR_BLANC;
+        // on lance actionsPossibles
+        actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, couleur, niveau);
+        actionsPossibles = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        // pose sur case vide : possible
+        actionsPossibles.afficher();
+        assertTrue(actionsPossibles.contient("PbJ,3,20"));
+        // pose sur case de même couleur : possible
+        assertTrue(actionsPossibles.contient("PaD,3,20"));
+        // pose sur case de couleur opposée : impossible
+        assertFalse(actionsPossibles.contient("PbC,3,20"));
+        // pose sur case de même couleur et hauteur > 1 et de hauteur < 4 : possible
+        assertTrue(actionsPossibles.contient("PdC,3,20"));
+        // pose sur une case de meme couleur et de niveau >= 4 : impossible
+        assertFalse(actionsPossibles.contient("PcB,3,20"));
+        // test pour l'activation 
+        assertTrue(actionsPossibles.contient("AaD,2,19"));
+        assertTrue(actionsPossibles.contient("AdC,3,19"));
+        assertFalse(actionsPossibles.contient("AcB,1,19"));
+        //test pour la pose sur une case voisine à un adversaire 
+        assertTrue(actionsPossibles.contient("PbB,3,21"));
+        assertFalse(actionsPossibles.contient("PcC,3,19"));
+        assertTrue(actionsPossibles.contient("PcE,3,21"));
+        // test pour la fusion 
+        assertTrue(actionsPossibles.contient("FaD,3,17"));
+        assertTrue(actionsPossibles.contient("FbE,3,15"));
+        assertTrue(actionsPossibles.contient("FcD,3,11"));
+        assertTrue(actionsPossibles.contient("FfC,3,18"));
+         //Test pour l'action magie
+        assertTrue(actionsPossibles.contient("MbA,3,19"));
+        assertTrue(actionsPossibles.contient("MaD,3,19"));
+        assertTrue(actionsPossibles.contient("McD,3,19"));
+         
+
+        // Test pour l'action chaton kamikaze
+        assertTrue(actionsPossibles.contient("CO,3,7"));
+        assertTrue(actionsPossibles.contient("CE,3,6"));
+        assertTrue(actionsPossibles.contient("CN,1,9"));
+        assertTrue(actionsPossibles.contient("CS,3,3"));
+       
+
+    }
+
     @Test
     public void testNbPions() {
         // à décommenter le moment venu...
@@ -645,7 +726,7 @@ public class JoueurTowaTest {
     }
 
     @Test
-    public void testActivePossible() {
+    public void testActivationPossible() {
         JoueurTowa joueur = new JoueurTowa();
 //        Case[][] plateau1 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU1);
 //        assertTrue( joueur.posePossible(plateau1, Coordonnees.depuisCars('f', 'D'), Case.CAR_NOIR));
@@ -657,19 +738,19 @@ public class JoueurTowaTest {
 //        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('a', 'N'), Case.CAR_BLANC));
 //        assertFalse( joueur.posePossible(plateau2, Coordonnees.depuisCars('b', 'A'), Case.CAR_BLANC));
 //        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('b', 'H'), Case.CAR_BLANC));
-        assertTrue(joueur.poseActivePossible(plateau4, Coordonnees.depuisCars('a', 'A'), Case.CAR_BLANC));
-        assertTrue(joueur.poseActivePossible(plateau4, Coordonnees.depuisCars('m', 'F'), Case.CAR_BLANC));
-        assertTrue(joueur.poseActivePossible(plateau4, Coordonnees.depuisCars('c', 'L'), Case.CAR_BLANC));
-        assertFalse(joueur.poseActivePossible(plateau4, Coordonnees.depuisCars('j', 'A'), Case.CAR_BLANC));
-        assertFalse(joueur.poseActivePossible(plateau4, Coordonnees.depuisCars('i', 'B'), Case.CAR_BLANC));
-        assertFalse(joueur.poseActivePossible(plateau4, Coordonnees.depuisCars('k', 'F'), Case.CAR_BLANC));
+        assertTrue(joueur.activationPossible(plateau4, Coordonnees.depuisCars('a', 'A'), Case.CAR_BLANC));
+        assertTrue(joueur.activationPossible(plateau4, Coordonnees.depuisCars('m', 'F'), Case.CAR_BLANC));
+        assertTrue(joueur.activationPossible(plateau4, Coordonnees.depuisCars('c', 'L'), Case.CAR_BLANC));
+        assertFalse(joueur.activationPossible(plateau4, Coordonnees.depuisCars('j', 'A'), Case.CAR_BLANC));
+        assertFalse(joueur.activationPossible(plateau4, Coordonnees.depuisCars('i', 'B'), Case.CAR_BLANC));
+        assertFalse(joueur.activationPossible(plateau4, Coordonnees.depuisCars('k', 'F'), Case.CAR_BLANC));
 
-        assertTrue(joueur.poseActivePossible(plateau4, Coordonnees.depuisCars('b', 'A'), Case.CAR_NOIR));
-        assertTrue(joueur.poseActivePossible(plateau4, Coordonnees.depuisCars('c', 'K'), Case.CAR_NOIR));
-        assertTrue(joueur.poseActivePossible(plateau4, Coordonnees.depuisCars('o', 'F'), Case.CAR_NOIR));
-        assertFalse(joueur.poseActivePossible(plateau4, Coordonnees.depuisCars('g', 'C'), Case.CAR_NOIR));
-        assertFalse(joueur.poseActivePossible(plateau4, Coordonnees.depuisCars('a', 'B'), Case.CAR_NOIR));
-        assertFalse(joueur.poseActivePossible(plateau4, Coordonnees.depuisCars('c', 'C'), Case.CAR_NOIR));
+        assertTrue(joueur.activationPossible(plateau4, Coordonnees.depuisCars('b', 'A'), Case.CAR_NOIR));
+        assertTrue(joueur.activationPossible(plateau4, Coordonnees.depuisCars('c', 'K'), Case.CAR_NOIR));
+        assertTrue(joueur.activationPossible(plateau4, Coordonnees.depuisCars('o', 'F'), Case.CAR_NOIR));
+        assertFalse(joueur.activationPossible(plateau4, Coordonnees.depuisCars('g', 'C'), Case.CAR_NOIR));
+        assertFalse(joueur.activationPossible(plateau4, Coordonnees.depuisCars('a', 'B'), Case.CAR_NOIR));
+        assertFalse(joueur.activationPossible(plateau4, Coordonnees.depuisCars('c', 'C'), Case.CAR_NOIR));
 
     }
 
@@ -721,14 +802,14 @@ public class JoueurTowaTest {
     }
 
     @Test
-    public void testAjoutPoseActive() {
+    public void testAjoutActionActivation() {
         JoueurTowa joueur = new JoueurTowa();
         ActionsPossibles actions = new ActionsPossibles();
         NbPions nbPions = new NbPions(10, 10);
         // pour l'instant pas d'action possible
         assertEquals(0, actions.nbActions);
         // on crée le tableau d'actions et on en ajoute une
-        joueur.ajoutPoseActive(Coordonnees.depuisCars('f', 'D'), actions,
+        joueur.ajoutActionActivation(Coordonnees.depuisCars('f', 'D'), actions,
                 nbPions, Case.CAR_NOIR, 4);
         // l'action est devenue possible
         assertTrue(actions.contient("AfD,10,6"));
@@ -737,7 +818,7 @@ public class JoueurTowaTest {
         // pour l'instant une seule action possible
         assertEquals(1, actions.nbActions);
         // ajout d'une deuxième action possible
-        joueur.ajoutPoseActive(Coordonnees.depuisCars('b', 'H'), actions,
+        joueur.ajoutActionActivation(Coordonnees.depuisCars('b', 'H'), actions,
                 nbPions, Case.CAR_NOIR, 1);
         // l'action a bien été ajoutée
         assertTrue(actions.contient("AbH,10,9"));
@@ -745,7 +826,7 @@ public class JoueurTowaTest {
         assertEquals(2, actions.nbActions);
 
         // on crée le tableau d'actions et on en ajoute une
-        joueur.ajoutPoseActive(Coordonnees.depuisCars('f', 'D'), actions,
+        joueur.ajoutActionActivation(Coordonnees.depuisCars('f', 'D'), actions,
                 nbPions, Case.CAR_BLANC, 3);
         // l'action est devenue possible
         assertTrue(actions.contient("AfD,7,10"));
@@ -754,7 +835,7 @@ public class JoueurTowaTest {
         // pour l'instant une seule action possible
         assertEquals(3, actions.nbActions);
         // ajout d'une deuxième action possible
-        joueur.ajoutPoseActive(Coordonnees.depuisCars('b', 'H'), actions,
+        joueur.ajoutActionActivation(Coordonnees.depuisCars('b', 'H'), actions,
                 nbPions, Case.CAR_BLANC, 2);
         // l'action a bien été ajoutée
         assertTrue(actions.contient("AbH,8,10"));
@@ -764,14 +845,14 @@ public class JoueurTowaTest {
     }
 
     @Test
-    public void testAjoutPoseFusion() {
+    public void testAjoutActionFusion() {
         JoueurTowa joueur = new JoueurTowa();
         ActionsPossibles actions = new ActionsPossibles();
         NbPions nbPions = new NbPions(10, 10);
         // pour l'instant pas d'action possible
         assertEquals(0, actions.nbActions);
         // on crée le tableau d'actions et on en ajoute une
-        joueur.ajoutPoseFusion(Coordonnees.depuisCars('f', 'D'), actions,
+        joueur.ajoutActionFusion(Coordonnees.depuisCars('f', 'D'), actions,
                 nbPions, Case.CAR_NOIR, 4);
         // l'action est devenue possible
         assertTrue(actions.contient("FfD,6,10"));
@@ -780,7 +861,7 @@ public class JoueurTowaTest {
         // pour l'instant une seule action possible
         assertEquals(1, actions.nbActions);
         // ajout d'une deuxième action possible
-        joueur.ajoutPoseFusion(Coordonnees.depuisCars('b', 'H'), actions,
+        joueur.ajoutActionFusion(Coordonnees.depuisCars('b', 'H'), actions,
                 nbPions, Case.CAR_NOIR, 1);
         // l'action a bien été ajoutée
         assertTrue(actions.contient("FbH,9,10"));
@@ -788,7 +869,7 @@ public class JoueurTowaTest {
         assertEquals(2, actions.nbActions);
 
         // on crée le tableau d'actions et on en ajoute une
-        joueur.ajoutPoseFusion(Coordonnees.depuisCars('f', 'D'), actions,
+        joueur.ajoutActionFusion(Coordonnees.depuisCars('f', 'D'), actions,
                 nbPions, Case.CAR_BLANC, 3);
         // l'action est devenue possible
         assertTrue(actions.contient("FfD,10,7"));
@@ -797,7 +878,7 @@ public class JoueurTowaTest {
         // pour l'instant une seule action possible
         assertEquals(3, actions.nbActions);
         // ajout d'une deuxième action possible
-        joueur.ajoutPoseFusion(Coordonnees.depuisCars('b', 'H'), actions,
+        joueur.ajoutActionFusion(Coordonnees.depuisCars('b', 'H'), actions,
                 nbPions, Case.CAR_BLANC, 2);
         // l'action a bien été ajoutée
         assertTrue(actions.contient("FbH,10,8"));
@@ -807,7 +888,7 @@ public class JoueurTowaTest {
     }
 
     @Test
-    public void testAjoutKamikaze() {
+    public void testAjoutActionKamikaze() {
         JoueurTowa joueur = new JoueurTowa();
         ActionsPossibles actions = new ActionsPossibles();
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU9);
@@ -815,27 +896,70 @@ public class JoueurTowaTest {
         // pour l'instant pas d'action possible
         assertEquals(0, actions.nbActions);
         // on crée le tableau d'actions et on en ajoute une
-        joueur.ajoutKamikaze(actions, nbPions, JoueurTowa.OUEST, plateau);
+        joueur.ajoutActionKamikaze(actions, nbPions, JoueurTowa.OUEST, plateau);
         // l'action est devenue possible
         assertTrue(actions.contient("CO,7,3"));
         // pour l'instant une seule action possible
         assertEquals(1, actions.nbActions);
         // ajout d'une deuxième action possible
-        joueur.ajoutKamikaze(actions, nbPions, JoueurTowa.EST, plateau);
+        joueur.ajoutActionKamikaze(actions, nbPions, JoueurTowa.EST, plateau);
         // l'action a bien été ajoutée
         assertTrue(actions.contient("CE,6,7"));
         // désormais, deux actions possibles
         assertEquals(2, actions.nbActions);
         // on crée le tableau d'actions et on en ajoute une
-        joueur.ajoutKamikaze(actions, nbPions, JoueurTowa.NORD, plateau);
+        joueur.ajoutActionKamikaze(actions, nbPions, JoueurTowa.NORD, plateau);
         // l'action est devenue possible
         assertTrue(actions.contient("CN,8,5"));
         // pour l'instant une seule action possible
         assertEquals(3, actions.nbActions);
         // ajout d'une deuxième action possible
-        joueur.ajoutKamikaze(actions, nbPions, JoueurTowa.SUD, plateau);
+        joueur.ajoutActionKamikaze(actions, nbPions, JoueurTowa.SUD, plateau);
         // l'action a bien été ajoutée
         assertTrue(actions.contient("CS,7,3"));
+        // désormais, deux actions possibles
+        assertEquals(4, actions.nbActions);
+
+    }
+
+    @Test
+    public void testAjoutActionMagie() {
+        JoueurTowa joueur = new JoueurTowa();
+        ActionsPossibles actions = new ActionsPossibles();
+        NbPions nbPions = new NbPions(10, 10);
+        // pour l'instant pas d'action possible
+        assertEquals(0, actions.nbActions);
+        // on crée le tableau d'actions et on en ajoute une
+        joueur.ajoutActionMagie(Coordonnees.depuisCars('f', 'D'), actions,
+                nbPions);
+        // l'action est devenue possible
+        assertTrue(actions.contient("MfD,10,10"));
+        //une action possible mais qui n'a pas encore été ajoutée
+        assertFalse(actions.contient("MbH,1,0"));
+        // pour l'instant une seule action possible
+        assertEquals(1, actions.nbActions);
+        // ajout d'une deuxième action possible
+        joueur.ajoutActionMagie(Coordonnees.depuisCars('b', 'H'), actions,
+                nbPions);
+        // l'action a bien été ajoutée
+        assertTrue(actions.contient("MbH,10,10"));
+        // désormais, deux actions possibles
+        assertEquals(2, actions.nbActions);
+
+        // on crée le tableau d'actions et on en ajoute une
+        joueur.ajoutActionMagie(Coordonnees.depuisCars('f', 'D'), actions,
+                nbPions);
+        // l'action est devenue possible
+        assertTrue(actions.contient("MfD,10,10"));
+        // une action possible mais qui n'a pas encore été ajoutée
+        assertFalse(actions.contient("MbH,0,1"));
+        // pour l'instant une seule action possible
+        assertEquals(3, actions.nbActions);
+        // ajout d'une deuxième action possible
+        joueur.ajoutActionMagie(Coordonnees.depuisCars('b', 'H'), actions,
+                nbPions);
+        // l'action a bien été ajoutée
+        assertTrue(actions.contient("MbH,10,10"));
         // désormais, deux actions possibles
         assertEquals(4, actions.nbActions);
 
@@ -932,7 +1056,7 @@ public class JoueurTowaTest {
         Case[][] plateau2 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU10);
         Coordonnees coordTest5 = Coordonnees.depuisCars('b', 'C');
         assertEquals(3, JoueurTowa.ligneActive(coordTest5, plateau2));
-        
+
     }
 
     @Test
@@ -1073,15 +1197,54 @@ public class JoueurTowaTest {
         assertEquals(10, JoueurTowa.sud('N', plateau));
         assertEquals(8, JoueurTowa.sud('B', plateau));
     }
-    
+
     @Test
     public void testNiveau() {
-        Case case1 =new Case('N',1,3,' ');
-        Case case2 =new Case('N',5,3,' ');
-        Case case3 =new Case('B',2,0,' ');
-        assertEquals(4,niveau(case1));
-        assertEquals(8,niveau(case2));
-        assertEquals(2,niveau(case3));
+        Case case1 = new Case('N', 1, 3, ' ');
+        Case case2 = new Case('N', 5, 3, ' ');
+        Case case3 = new Case('B', 2, 0, ' ');
+        assertEquals(4, niveau(case1));
+        assertEquals(8, niveau(case2));
+        assertEquals(2, niveau(case3));
+    }
+
+    @Test
+    public void testSymetrique() {
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU11);
+        Coordonnees coord1 = Coordonnees.depuisCars('a', 'A');
+        Coordonnees coordTest1 = Coordonnees.depuisCars('p', 'P');
+        assertEquals(plateau[coordTest1.ligne][coordTest1.colonne], JoueurTowa.symetrique(coord1, plateau));
+
+        Coordonnees coord2 = Coordonnees.depuisCars('p', 'A');
+        Coordonnees coordTest2 = Coordonnees.depuisCars('a', 'P');
+        assertEquals(plateau[coordTest2.ligne][coordTest2.colonne], JoueurTowa.symetrique(coord2, plateau));
+
+        Coordonnees coord3 = Coordonnees.depuisCars('g', 'H');
+        Coordonnees coordTest3 = Coordonnees.depuisCars('j', 'I');
+        assertEquals(plateau[coordTest3.ligne][coordTest3.colonne], JoueurTowa.symetrique(coord3, plateau));
+
+        Coordonnees coord4 = Coordonnees.depuisCars('i', 'G');
+        Coordonnees coordTest4 = Coordonnees.depuisCars('h', 'J');
+        assertEquals(plateau[coordTest4.ligne][coordTest4.colonne], JoueurTowa.symetrique(coord4, plateau));
+
+    }
+
+    @Test
+    public void testActionMagiePossible() {
+        Case[][] plateau11 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU11);
+        JoueurTowa joueur = new JoueurTowa();
+        Coordonnees coord1 = Coordonnees.depuisCars('g', 'H');
+        assertTrue(joueur.actionMagiePossible(plateau11, coord1, Case.CAR_BLANC));
+
+        Coordonnees coord2 = Coordonnees.depuisCars('i', 'G');
+        assertTrue(joueur.actionMagiePossible(plateau11, coord2, Case.CAR_BLANC));
+
+        Coordonnees coord3 = Coordonnees.depuisCars('i', 'H');
+        assertFalse(joueur.actionMagiePossible(plateau11, coord3, Case.CAR_BLANC));
+
+        Coordonnees coord4 = Coordonnees.depuisCars('e', 'J');
+        assertFalse(joueur.actionMagiePossible(plateau11, coord4, Case.CAR_BLANC));
+
     }
 
     /**
@@ -1296,6 +1459,42 @@ public class JoueurTowaTest {
             + "k|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
             + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
             + "l|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "m|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "n|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "o|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "p|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+";
+
+    final String PLATEAU_NIVEAU11
+            = "  A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P \n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "a|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "b|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "c|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "d|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "e|   |   |   |   |   |   |   |   |   |B13|   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "f|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "g|   |   |   |   |   |   |   |B12|   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "h|   |   |   |   |   |  3|   |   |N1 |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "i|   |   |   |   |   |   |B1 |B2 |   |   |B2 |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "j|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "k|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "l|   |   |   |   |   |   |B1 |   |   |   |   |   |   |   |   |   |\n"
             + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
             + "m|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
             + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
