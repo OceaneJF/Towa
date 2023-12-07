@@ -30,7 +30,8 @@ public class JoueurTowaTest {
         //testActionsPossibles_niveau8();
         //testActionsPossibles_niveau9();
         //testActionsPossibles_niveau10();
-        testActionsPossibles_niveau11();
+        //testActionsPossibles_niveau11();
+        testActionsPossibles_niveau12();
     }
 
     /**
@@ -625,7 +626,6 @@ public class JoueurTowaTest {
         //test pour l'action magie
         assertTrue(actionsPossibles.contient("MbC,3,19"));
         assertTrue(actionsPossibles.contient("MbD,3,19"));
-        
 
         // 2 - joueur blanc
         couleur = Case.CAR_BLANC;
@@ -656,19 +656,109 @@ public class JoueurTowaTest {
         assertTrue(actionsPossibles.contient("FbE,3,15"));
         assertTrue(actionsPossibles.contient("FcD,3,11"));
         assertTrue(actionsPossibles.contient("FfC,3,18"));
-         //Test pour l'action magie
+        //Test pour l'action magie
         assertTrue(actionsPossibles.contient("MbA,3,19"));
         assertTrue(actionsPossibles.contient("MaD,3,19"));
         assertTrue(actionsPossibles.contient("McD,3,19"));
-         
 
         // Test pour l'action chaton kamikaze
         assertTrue(actionsPossibles.contient("CO,3,7"));
         assertTrue(actionsPossibles.contient("CE,3,6"));
         assertTrue(actionsPossibles.contient("CN,1,9"));
         assertTrue(actionsPossibles.contient("CS,3,3"));
-       
 
+    }
+    
+    public void testActionsPossibles_niveau12() {
+        JoueurTowa joueur = new JoueurTowa();
+        // sur le plateau initial : 3 pions noirs et 19 pions blancs
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU10);
+        // sur le plateau 12 : 36 pions noirs et 23 blancs
+        Case[][] plateau1 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU12);
+        
+        int niveau = 12;
+        // 1 - joueur noir
+        char couleur = Case.CAR_NOIR;
+        // on lance actionsPossibles
+        String[] actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, couleur, niveau);
+        ActionsPossibles actionsPossibles
+                = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        actionsPossibles.afficher();
+        //pose sur case vide : possible
+        assertTrue(actionsPossibles.contient("PaP,4,19"));
+        // pose sur case de même couleur : possible
+        assertTrue(actionsPossibles.contient("PbD,4,19"));
+        // pose sur case de couleur opposée : impossible
+        assertFalse(actionsPossibles.contient("PbA,4,19"));
+        // pose sur une case de meme couleur et de niveau >= 4 : impossible
+        assertFalse(actionsPossibles.contient("PbC,4,19"));
+        // test pour l'activation 
+        assertTrue(actionsPossibles.contient("AbC,3,13"));
+        assertTrue(actionsPossibles.contient("AbD,3,19"));
+        // test pour la pose sur une case voisine à un adversaire 
+        assertTrue(actionsPossibles.contient("PdB,5,19"));
+        assertTrue(actionsPossibles.contient("PdD,5,19"));
+        assertFalse(actionsPossibles.contient("PgC,5,19"));
+        // test pour la fusion 
+        assertTrue(actionsPossibles.contient("FbD,3,19"));
+        assertTrue(actionsPossibles.contient("FbC,2,19"));
+        assertFalse(actionsPossibles.contient("FbE,2,19"));
+        //test pour l'action magie
+        assertTrue(actionsPossibles.contient("MbC,3,19"));
+        assertTrue(actionsPossibles.contient("MbD,3,19"));
+        //test pour la nature 
+        String[] actionsPossiblesDepuisPlateau12 = joueur.actionsPossibles(plateau1, couleur, niveau);
+        ActionsPossibles actionsPossibles12
+                = new ActionsPossibles(actionsPossiblesDepuisPlateau12);
+        assertTrue(actionsPossibles12.contient("MbA,36,23"));
+        assertFalse(actionsPossibles12.contient("PgD,36,23"));
+        assertFalse(actionsPossibles12.contient("PhH,36,23"));
+        
+        
+        // 2 - joueur blanc
+        couleur = Case.CAR_BLANC;
+        // on lance actionsPossibles
+        actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, couleur, niveau);
+        actionsPossibles = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        // pose sur case vide : possible
+        actionsPossibles.afficher();
+        assertTrue(actionsPossibles.contient("PbJ,3,20"));
+        // pose sur case de même couleur : possible
+        assertTrue(actionsPossibles.contient("PaD,3,20"));
+        // pose sur case de couleur opposée : impossible
+        assertFalse(actionsPossibles.contient("PbC,3,20"));
+        // pose sur case de même couleur et hauteur > 1 et de hauteur < 4 : possible
+        assertTrue(actionsPossibles.contient("PdC,3,20"));
+        // pose sur une case de meme couleur et de niveau >= 4 : impossible
+        assertFalse(actionsPossibles.contient("PcB,3,20"));
+        // test pour l'activation 
+        assertTrue(actionsPossibles.contient("AaD,2,19"));
+        assertTrue(actionsPossibles.contient("AdC,3,19"));
+        assertFalse(actionsPossibles.contient("AcB,1,19"));
+        //test pour la pose sur une case voisine à un adversaire 
+        assertTrue(actionsPossibles.contient("PbB,3,21"));
+        assertFalse(actionsPossibles.contient("PcC,3,19"));
+        assertTrue(actionsPossibles.contient("PcE,3,21"));
+        // test pour la fusion 
+        assertTrue(actionsPossibles.contient("FaD,3,17"));
+        assertTrue(actionsPossibles.contient("FbE,3,15"));
+        assertTrue(actionsPossibles.contient("FcD,3,11"));
+        assertTrue(actionsPossibles.contient("FfC,3,18"));
+        //Test pour l'action magie
+        assertTrue(actionsPossibles.contient("MbA,3,19"));
+        assertTrue(actionsPossibles.contient("MaD,3,19"));
+        assertTrue(actionsPossibles.contient("McD,3,19"));
+
+        // Test pour l'action chaton kamikaze
+        assertTrue(actionsPossibles.contient("CO,3,7"));
+        assertTrue(actionsPossibles.contient("CE,3,6"));
+        assertTrue(actionsPossibles.contient("CN,1,9"));
+        assertTrue(actionsPossibles.contient("CS,3,3"));
+        
+        //test pour la nature
+        assertFalse(actionsPossibles12.contient("MiI,36,23"));
+        assertFalse(actionsPossibles12.contient("PgD,36,23"));
+        assertFalse(actionsPossibles12.contient("PhH,36,23"));
     }
 
     @Test
@@ -689,22 +779,24 @@ public class JoueurTowaTest {
     @Test
     public void testPosePossible() {
         JoueurTowa joueur = new JoueurTowa();
-//        Case[][] plateau1 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU1);
-//        assertTrue( joueur.posePossible(plateau1, Coordonnees.depuisCars('f', 'D'), Case.CAR_NOIR));
-//        assertTrue( joueur.posePossible(plateau1, Coordonnees.depuisCars('h', 'E'), Case.CAR_NOIR));
-        //Case[][] plateau2 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU2);
-//        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('a', 'B'), Case.CAR_NOIR));
-//        assertFalse( joueur.posePossible(plateau2, Coordonnees.depuisCars('a', 'G'), Case.CAR_NOIR));
-//        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('c', 'K'), Case.CAR_NOIR));
-//        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('a', 'N'), Case.CAR_BLANC));
-//        assertFalse( joueur.posePossible(plateau2, Coordonnees.depuisCars('b', 'A'), Case.CAR_BLANC));
-//        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('b', 'H'), Case.CAR_BLANC));
-//        assertTrue(joueur.posePossible(plateau2, Coordonnees.depuisCars('m', 'F'), Case.CAR_BLANC));
-//        assertTrue(joueur.posePossible(plateau2, Coordonnees.depuisCars('b', 'H'), Case.CAR_BLANC));
-//        assertFalse(joueur.posePossible(plateau2, Coordonnees.depuisCars('l', 'F'), Case.CAR_BLANC));
-//        assertFalse(joueur.posePossible(plateau2, Coordonnees.depuisCars('c', 'K'), Case.CAR_NOIR));
-//        assertTrue(joueur.posePossible(plateau2, Coordonnees.depuisCars('l', 'E'), Case.CAR_NOIR));
-//        assertTrue(joueur.posePossible(plateau2, Coordonnees.depuisCars('j', 'H'), Case.CAR_NOIR));
+        
+        Case[][] plateau1 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU1);
+        assertTrue( joueur.posePossible(plateau1, Coordonnees.depuisCars('f', 'D'), Case.CAR_NOIR));
+        assertTrue( joueur.posePossible(plateau1, Coordonnees.depuisCars('h', 'E'), Case.CAR_NOIR));
+        
+        Case[][] plateau2 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU2);
+        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('a', 'B'), Case.CAR_NOIR));
+        assertFalse( joueur.posePossible(plateau2, Coordonnees.depuisCars('a', 'G'), Case.CAR_NOIR));
+        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('a', 'N'), Case.CAR_BLANC));
+        assertFalse( joueur.posePossible(plateau2, Coordonnees.depuisCars('b', 'A'), Case.CAR_BLANC));
+        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('b', 'H'), Case.CAR_BLANC));
+        assertTrue(joueur.posePossible(plateau2, Coordonnees.depuisCars('m', 'F'), Case.CAR_BLANC));
+        assertTrue(joueur.posePossible(plateau2, Coordonnees.depuisCars('b', 'H'), Case.CAR_BLANC));
+        assertFalse(joueur.posePossible(plateau2, Coordonnees.depuisCars('l', 'F'), Case.CAR_BLANC));
+        assertFalse(joueur.posePossible(plateau2, Coordonnees.depuisCars('c', 'K'), Case.CAR_NOIR));
+        assertTrue(joueur.posePossible(plateau2, Coordonnees.depuisCars('l', 'E'), Case.CAR_NOIR));
+        assertTrue(joueur.posePossible(plateau2, Coordonnees.depuisCars('j', 'H'), Case.CAR_NOIR));
+        
         Case[][] plateau3 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU10);
         //la pose est toujours impossible sur les cases dotées d'une tour énemie
         assertFalse(joueur.posePossible(plateau3, Coordonnees.depuisCars('b', 'A'), Case.CAR_NOIR));
@@ -723,21 +815,17 @@ public class JoueurTowaTest {
         assertTrue(joueur.posePossible(plateau3, Coordonnees.depuisCars('b', 'B'), Case.CAR_BLANC));
         //la pose est impossible car la case est d'altitude 3 et une tour ennemie se trouve sur une case adjacente et impliquerait la pose de 2 pions, ce qui dépasserait la limite de 4 sur le niveau 
         assertFalse(joueur.posePossible(plateau3, Coordonnees.depuisCars('g', 'C'), Case.CAR_NOIR));
+        
+        Case[][] plateau4 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU12);
+        assertFalse(joueur.posePossible(plateau4, Coordonnees.depuisCars('g', 'D'), Case.CAR_NOIR));
+        assertFalse(joueur.posePossible(plateau4, Coordonnees.depuisCars('h', 'H'), Case.CAR_BLANC));
     }
 
     @Test
     public void testActivationPossible() {
         JoueurTowa joueur = new JoueurTowa();
-//        Case[][] plateau1 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU1);
-//        assertTrue( joueur.posePossible(plateau1, Coordonnees.depuisCars('f', 'D'), Case.CAR_NOIR));
-//        assertTrue( joueur.posePossible(plateau1, Coordonnees.depuisCars('h', 'E'), Case.CAR_NOIR));
         Case[][] plateau4 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU4);
-//        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('a', 'B'), Case.CAR_NOIR));
-//        assertFalse( joueur.posePossible(plateau2, Coordonnees.depuisCars('a', 'G'), Case.CAR_NOIR));
-//        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('c', 'K'), Case.CAR_NOIR));
-//        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('a', 'N'), Case.CAR_BLANC));
-//        assertFalse( joueur.posePossible(plateau2, Coordonnees.depuisCars('b', 'A'), Case.CAR_BLANC));
-//        assertTrue( joueur.posePossible(plateau2, Coordonnees.depuisCars('b', 'H'), Case.CAR_BLANC));
+        
         assertTrue(joueur.activationPossible(plateau4, Coordonnees.depuisCars('a', 'A'), Case.CAR_BLANC));
         assertTrue(joueur.activationPossible(plateau4, Coordonnees.depuisCars('m', 'F'), Case.CAR_BLANC));
         assertTrue(joueur.activationPossible(plateau4, Coordonnees.depuisCars('c', 'L'), Case.CAR_BLANC));
@@ -969,6 +1057,7 @@ public class JoueurTowaTest {
     public void testAdjacente() {
 
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU7);
+        // test pour l'activation
         Coordonnees coordTest1 = Coordonnees.depuisCars('l', 'F');
         assertEquals(5, JoueurTowa.adjacente(coordTest1, plateau, ACTIVATION));
 
@@ -980,7 +1069,8 @@ public class JoueurTowaTest {
 
         Coordonnees coordTest4 = Coordonnees.depuisCars('l', 'F');
         assertEquals(5, JoueurTowa.adjacente(coordTest4, plateau, ACTIVATION));
-
+        
+        // test pour la fusion 
         Coordonnees coordTest5 = Coordonnees.depuisCars('c', 'K');
         assertEquals(1, JoueurTowa.adjacente(coordTest5, plateau, FUSION));
 
@@ -995,10 +1085,13 @@ public class JoueurTowaTest {
 
         Coordonnees coordTest9 = Coordonnees.depuisCars('c', 'E');
         assertEquals(0, JoueurTowa.adjacente(coordTest9, plateau, FUSION));
+        
         //Test pour le niveau 10
         Case[][] plateau2 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU10);
+        
         Coordonnees coordTest10 = Coordonnees.depuisCars('d', 'C');
         assertEquals(9, JoueurTowa.adjacente(coordTest10, plateau2, FUSION));
+        
         Coordonnees coordTest11 = Coordonnees.depuisCars('b', 'C');
         assertEquals(6, JoueurTowa.adjacente(coordTest11, plateau2, ACTIVATION));
 
@@ -1007,6 +1100,7 @@ public class JoueurTowaTest {
     @Test
     public void testdiagonaleActive() {
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU7);
+        
         Coordonnees coordTest1 = Coordonnees.depuisCars('c', 'K');
         assertEquals(1, JoueurTowa.diagonaleActive(coordTest1, plateau));
 
@@ -1015,8 +1109,10 @@ public class JoueurTowaTest {
 
         Coordonnees coordTest3 = Coordonnees.depuisCars('l', 'F');
         assertEquals(2, JoueurTowa.diagonaleActive(coordTest3, plateau));
+        
         //test pour le niveau 10
         Case[][] plateau2 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU10);
+        
         Coordonnees coordTest4 = Coordonnees.depuisCars('b', 'C');
         assertEquals(1, JoueurTowa.diagonaleActive(coordTest4, plateau2));
     }
@@ -1024,6 +1120,7 @@ public class JoueurTowaTest {
     @Test
     public void testdiagonaleFusion() {
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU7);
+        
         Coordonnees coordTest1 = Coordonnees.depuisCars('c', 'K');
         assertEquals(0, JoueurTowa.diagonaleFusion(coordTest1, plateau));
 
@@ -1035,12 +1132,12 @@ public class JoueurTowaTest {
 
         Coordonnees coordTest4 = Coordonnees.depuisCars('n', 'F');
         assertEquals(1, JoueurTowa.diagonaleFusion(coordTest4, plateau));
-
     }
 
     @Test
     public void testligneActive() {
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU7);
+        
         Coordonnees coordTest1 = Coordonnees.depuisCars('c', 'K');
         assertEquals(2, JoueurTowa.ligneActive(coordTest1, plateau));
 
@@ -1052,8 +1149,10 @@ public class JoueurTowaTest {
 
         Coordonnees coordTest4 = Coordonnees.depuisCars('a', 'A');
         assertEquals(0, JoueurTowa.ligneActive(coordTest4, plateau));
+        
         //test pour le niveau 10
         Case[][] plateau2 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU10);
+        
         Coordonnees coordTest5 = Coordonnees.depuisCars('b', 'C');
         assertEquals(3, JoueurTowa.ligneActive(coordTest5, plateau2));
 
@@ -1062,6 +1161,7 @@ public class JoueurTowaTest {
     @Test
     public void testligneFusion() {
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU7);
+        
         Coordonnees coordTest1 = Coordonnees.depuisCars('c', 'K');
         assertEquals(0, JoueurTowa.ligneFusion(coordTest1, plateau));
 
@@ -1087,6 +1187,7 @@ public class JoueurTowaTest {
     @Test
     public void testColonneActive() {
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU7);
+        
         Coordonnees coordTest1 = Coordonnees.depuisCars('l', 'F');
         assertEquals(0, JoueurTowa.colonneActive(coordTest1, plateau));
 
@@ -1098,8 +1199,10 @@ public class JoueurTowaTest {
 
         Coordonnees coordTest4 = Coordonnees.depuisCars('a', 'P');
         assertEquals(0, JoueurTowa.colonneActive(coordTest4, plateau));
+        
         //test pour le niveau 10
         Case[][] plateau2 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU10);
+        
         Coordonnees coordTest5 = Coordonnees.depuisCars('b', 'C');
         assertEquals(2, JoueurTowa.colonneActive(coordTest5, plateau2));
     }
@@ -1107,6 +1210,7 @@ public class JoueurTowaTest {
     @Test
     public void testcolonneFusion() {
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU7);
+        
         Coordonnees coordTest1 = Coordonnees.depuisCars('l', 'F');
         assertEquals(2, JoueurTowa.colonneFusion(coordTest1, plateau));
 
@@ -1121,7 +1225,7 @@ public class JoueurTowaTest {
     }
 
     @Test
-    public void testestDansTableau() {
+    public void testEstDansTableau() {
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU1);
         assertTrue(JoueurTowa.estDansPlateau(new Coordonnees(0, 13), plateau));
         assertTrue(JoueurTowa.estDansPlateau(new Coordonnees(5, 12), plateau));
@@ -1135,24 +1239,24 @@ public class JoueurTowaTest {
     public void testVoisines() {
 
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU4);
-        char couleurJoueurN = 'N';
-        Coordonnees coordTest1 = new Coordonnees(1, 10);
+        char couleurJoueurN = Case.CAR_NOIR;
+        Coordonnees coordTest1 = Coordonnees.depuisCars('b', 'K');
         assertEquals(2, JoueurTowa.voisines(coordTest1, plateau, couleurJoueurN));
 
-        Coordonnees coordTest2 = new Coordonnees(6, 10);
+        Coordonnees coordTest2 = Coordonnees.depuisCars('g', 'K');
         assertEquals(1, JoueurTowa.voisines(coordTest2, plateau, couleurJoueurN));
-
-        Coordonnees coordTest3 = new Coordonnees(0, 4);
+        
+        Coordonnees coordTest3 = Coordonnees.depuisCars('a', 'E');
         assertEquals(1, JoueurTowa.voisines(coordTest3, plateau, couleurJoueurN));
 
-        char couleurJoueurB = 'B';
-        Coordonnees coordTest4 = new Coordonnees(7, 1);
+        char couleurJoueurB = Case.CAR_BLANC;
+        Coordonnees coordTest4 = Coordonnees.depuisCars('h', 'B');
         assertEquals(2, JoueurTowa.voisines(coordTest4, plateau, couleurJoueurB));
 
-        Coordonnees coordTest5 = new Coordonnees(1, 6);
+        Coordonnees coordTest5 = Coordonnees.depuisCars('b', 'G');
         assertEquals(1, JoueurTowa.voisines(coordTest5, plateau, couleurJoueurB));
 
-        Coordonnees coordTest6 = new Coordonnees(1, 15);
+        Coordonnees coordTest6 = Coordonnees.depuisCars('b', 'P');
         assertEquals(1, JoueurTowa.voisines(coordTest6, plateau, couleurJoueurB));
 
     }
@@ -1160,49 +1264,50 @@ public class JoueurTowaTest {
     @Test
     public void testOuest() {
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU9);
-        assertEquals(10, JoueurTowa.ouest('N', plateau));
-        assertEquals(8, JoueurTowa.ouest('B', plateau));
+        assertEquals(10, JoueurTowa.ouest(Case.CAR_NOIR, plateau));
+        assertEquals(8, JoueurTowa.ouest(Case.CAR_BLANC, plateau));
     }
 
     @Test
     public void testEst() {
+        
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU9);
-        assertEquals(11, JoueurTowa.est('N', plateau));
-        assertEquals(4, JoueurTowa.est('B', plateau));
+        assertEquals(11, JoueurTowa.est(Case.CAR_NOIR, plateau));
+        assertEquals(4, JoueurTowa.est(Case.CAR_BLANC, plateau));
 
         Case[][] plateau2 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU4);
-        assertEquals(8, JoueurTowa.est('N', plateau2));
-        assertEquals(9, JoueurTowa.est('B', plateau2));
+        assertEquals(8, JoueurTowa.est(Case.CAR_NOIR, plateau2));
+        assertEquals(9, JoueurTowa.est(Case.CAR_BLANC, plateau2));
 
         Case[][] plateau3 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU7);
-        assertEquals(8, JoueurTowa.est('N', plateau3));
-        assertEquals(8, JoueurTowa.est('B', plateau3));
+        assertEquals(8, JoueurTowa.est(Case.CAR_NOIR, plateau3));
+        assertEquals(8, JoueurTowa.est(Case.CAR_BLANC, plateau3));
 
         Case[][] plateau4 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU2);
-        assertEquals(6, JoueurTowa.est('N', plateau4));
-        assertEquals(9, JoueurTowa.est('B', plateau4));
+        assertEquals(6, JoueurTowa.est(Case.CAR_NOIR, plateau4));
+        assertEquals(9, JoueurTowa.est(Case.CAR_BLANC, plateau4));
 
     }
 
     @Test
     public void testNord() {
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU9);
-        assertEquals(9, JoueurTowa.nord('N', plateau));
-        assertEquals(6, JoueurTowa.nord('B', plateau));
+        assertEquals(9, JoueurTowa.nord(Case.CAR_NOIR, plateau));
+        assertEquals(6, JoueurTowa.nord(Case.CAR_BLANC, plateau));
     }
 
     @Test
     public void testSud() {
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU9);
-        assertEquals(10, JoueurTowa.sud('N', plateau));
-        assertEquals(8, JoueurTowa.sud('B', plateau));
+        assertEquals(10, JoueurTowa.sud(Case.CAR_NOIR, plateau));
+        assertEquals(8, JoueurTowa.sud(Case.CAR_BLANC, plateau));
     }
 
     @Test
     public void testNiveau() {
-        Case case1 = new Case('N', 1, 3, ' ');
-        Case case2 = new Case('N', 5, 3, ' ');
-        Case case3 = new Case('B', 2, 0, ' ');
+        Case case1 = new Case(Case.CAR_NOIR, 1, 3, ' ');
+        Case case2 = new Case(Case.CAR_NOIR, 5, 3, ' ');
+        Case case3 = new Case(Case.CAR_BLANC, 2, 0, ' ');
         assertEquals(4, niveau(case1));
         assertEquals(8, niveau(case2));
         assertEquals(2, niveau(case3));
@@ -1244,6 +1349,13 @@ public class JoueurTowaTest {
 
         Coordonnees coord4 = Coordonnees.depuisCars('e', 'J');
         assertFalse(joueur.actionMagiePossible(plateau11, coord4, Case.CAR_BLANC));
+        
+        Case[][] plateau12 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU12);
+        Coordonnees coord5 = Coordonnees.depuisCars('i', 'I');
+        assertFalse(joueur.actionMagiePossible(plateau12, coord5, Case.CAR_BLANC));
+        
+        Coordonnees coord6 = Coordonnees.depuisCars('b', 'A');
+        assertTrue(joueur.actionMagiePossible(plateau12, coord6, Case.CAR_NOIR));
 
     }
 
@@ -1503,5 +1615,41 @@ public class JoueurTowaTest {
             + "o|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
             + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
             + "p|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+";
+
+    final String PLATEAU_NIVEAU12
+            = "  A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   P \n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "a|   |   |   |   |   |N4 |B1 |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "b|N1 |   |   |   |   |   |   |B1 |   |   |   |B1 |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "c|   |   |B1 |   |B1 |   |   |   |   |   |N1 |B1 |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "d|   |   |   |   |   |   |   |   |B1 |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "e|B1 |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "f|   |   |   |   |   |N2 |   |B11|   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+E--+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "g|   |   |B2 |   |   |   |   |  2|   |N1 |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+E--+---+---+---+---+---+---+---+---+\n"
+            + "h|   |   |   |   |   |B4 |   |  3|  3|   |N1 |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "i|   |N1 |N1 |   |   |   |   |B22|B1 |   |   |   |N1 |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "j|   |   |   |   |   |   |N1 |   |N2 |   |   |B1 |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "k|   |   |   |   |N1 |   |   |   |   |N2 |   |   |   |   |B1 |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "l|N1 |N4 |   |   |N3 |   |B1 |   |   |   |   |   |   |   |   |N1 |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "m|   |   |   |   |B1 |   |   |   |   |N1 |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "n|   |   |   |   |N1 |N1 |N2 |   |   |N1 |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "o|   |N1 |   |   |   |   |   |N1 |   |   |   |   |   |   |   |   |\n"
+            + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+\n"
+            + "p|   |   |   |   |   |   |B1 |   |   |   |   |   |   |   |   |   |\n"
             + " +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+";
 }

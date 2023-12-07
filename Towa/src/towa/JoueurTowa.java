@@ -111,15 +111,18 @@ public class JoueurTowa implements IJoueurTowa {
      * niveau
      */
     boolean posePossible(Case[][] plateau, Coordonnees coord, char couleur) {
+        Case casePlateau = plateau[coord.ligne][coord.colonne];
         boolean possible = false;
         //La pose est possible si : la couleur de la tour est la meme que celle du joueur
-        if ((plateau[coord.ligne][coord.colonne].couleur == couleur
+        if ((casePlateau.couleur == couleur
                 // Ou si la case est vide 
-                || !plateau[coord.ligne][coord.colonne].tourPresente())
+                || !casePlateau.tourPresente())
                 // Et si le niveau de la case est inférieur à 4
-                && niveau(plateau[coord.ligne][coord.colonne]) < 4) {
+                && niveau(casePlateau) < 4
+                // Et si la case est de nature terre
+                && casePlateau.nature == Case.CAR_TERRE) {
             // Si le niveau n'est pas supérieur à 4 lorsque l'on pose le pions qur une case voisine d'un de ses adversaires
-            if (voisines(coord, plateau, couleur) + niveau(plateau[coord.ligne][coord.colonne]) <= 4) {
+            if (voisines(coord, plateau, couleur) + niveau(casePlateau) <= 4) {
                 possible = true;
             }
         }
@@ -137,7 +140,8 @@ public class JoueurTowa implements IJoueurTowa {
      * dans ce niveau
      */
     boolean activationPossible(Case[][] plateau, Coordonnees coord, char couleur) {
-        return plateau[coord.ligne][coord.colonne].couleur == couleur && plateau[coord.ligne][coord.colonne].tourPresente();
+        Case casePlateau = plateau[coord.ligne][coord.colonne];
+        return casePlateau.couleur == couleur && casePlateau.tourPresente();
     }
 
     /**
@@ -300,6 +304,7 @@ public class JoueurTowa implements IJoueurTowa {
      */
     static int adjacente(Coordonnees coord, Case[][] plateau, boolean action) {
         int decompte = 0;
+        Case casePlateau = plateau[coord.ligne][coord.colonne];
         /*Si il s'agit d'une action d'activation, le nombre de pions à retirer correspond à tous les pions adjacents énemis,
         sur la meme ligne et sur la meme colonne de hauteur strictement inférieur à la tour activé.*/
         if (action) {
@@ -309,12 +314,12 @@ public class JoueurTowa implements IJoueurTowa {
             //Le totale correspond à tous les pions amis adjacent à la tour que l'on souhaite fusionner 
             int totale = diagonaleFusion(coord, plateau) + colonneFusion(coord, plateau) + ligneFusion(coord, plateau);
             // Si le niveau de la tour est >= 4 alors le nombre de pions étant de la meme couleur que la tour à retirer du plateau correspond au totale 
-            if (niveau(plateau[coord.ligne][coord.colonne]) >= 4) {
+            if (niveau(casePlateau) >= 4) {
                 decompte = totale;
                 /* Si il y a des pions amis adjacent à la tour, que le totale !=0 et que la somme du totale et du niveau de la tour est >4 
                 alors le nombre de pions à retirer du plateau correspond au calcul ci-dessous*/
-            } else if (totale != 0 && !((totale + niveau(plateau[coord.ligne][coord.colonne])) <= 4)) {
-                decompte = totale - (4 - niveau(plateau[coord.ligne][coord.colonne]));
+            } else if (totale != 0 && !((totale + niveau(casePlateau)) <= 4)) {
+                decompte = totale - (4 - niveau(casePlateau));
             }
         }
         return decompte;
@@ -332,6 +337,7 @@ public class JoueurTowa implements IJoueurTowa {
      * plus bas que celle-ci
      */
     static int diagonaleActive(Coordonnees coord, Case[][] plateau) {
+        Case casePlateau = plateau[coord.ligne][coord.colonne];
         // Le decompte correspond au nombre de pions énemis présent sur les diagonales de la tour 
         int decompte = 0;
         for (int[] direction1 : direction) {
@@ -339,9 +345,8 @@ public class JoueurTowa implements IJoueurTowa {
             Coordonnees suivante = new Coordonnees(coord.ligne + direction1[0], coord.colonne + direction1[1]);
             if (estDansPlateau(suivante, plateau)) {
                 if (plateau[suivante.ligne][suivante.colonne].tourPresente()
-                        && plateau[suivante.ligne][suivante.colonne].couleur != plateau[coord.ligne][coord.colonne].couleur
-                        && niveau(plateau[suivante.ligne][suivante.colonne]) < niveau(plateau[coord.ligne][coord.colonne])) {
-
+                        && plateau[suivante.ligne][suivante.colonne].couleur != casePlateau.couleur
+                        && niveau(plateau[suivante.ligne][suivante.colonne]) < niveau(casePlateau)) {
                     decompte += plateau[suivante.ligne][suivante.colonne].hauteur;
                 }
             }
@@ -360,15 +365,14 @@ public class JoueurTowa implements IJoueurTowa {
      * adjacentes de la tour que l'on souhaite fusionner
      */
     static int diagonaleFusion(Coordonnees coord, Case[][] plateau) {
+        Case casePlateau = plateau[coord.ligne][coord.colonne];
         // Le decompte correspond au nombre de pions amis présent sur les diagonales de la tour 
         int decompte = 0;
         for (int[] direction1 : direction) {
             Coordonnees suivante = new Coordonnees(coord.ligne + direction1[0], coord.colonne + direction1[1]);
             if (estDansPlateau(suivante, plateau)) {
-
-                if (plateau[suivante.ligne][suivante.colonne].tourPresente()
-                        && plateau[suivante.ligne][suivante.colonne].couleur == plateau[coord.ligne][coord.colonne].couleur) {
-
+                if (plateau[suivante.ligne][suivante.colonne].tourPresente() 
+                        && plateau[suivante.ligne][suivante.colonne].couleur == casePlateau.couleur) {
                     decompte += plateau[suivante.ligne][suivante.colonne].hauteur;
                 }
             }
@@ -389,6 +393,7 @@ public class JoueurTowa implements IJoueurTowa {
      * est moins haut que celle-ci
      */
     static int colonneActive(Coordonnees coord, Case[][] plateau) {
+        Case casePlateau = plateau[coord.ligne][coord.colonne];
         // Le decompte correspond au nombre de pions énemis présent sur la colonne 
         int decompte = 0;
         //On compte le nombre de pions énemis présent sur la colonne en partant de la tour vers le haut (seulement la premiere tour)
@@ -398,9 +403,10 @@ public class JoueurTowa implements IJoueurTowa {
             while (!plateau[i][coord.colonne].tourPresente() && i > 0) {
                 i--;
             }
-            if (plateau[i][coord.colonne].couleur != plateau[coord.ligne][coord.colonne].couleur
-                    && niveau(plateau[i][coord.colonne]) < niveau(plateau[coord.ligne][coord.colonne])) {
-                decompte += plateau[i][coord.colonne].hauteur;
+            Case premiereTourHaut = plateau[i][coord.colonne];
+            if (premiereTourHaut.couleur != casePlateau.couleur
+                    && niveau(premiereTourHaut) < niveau(casePlateau)) {
+                decompte += premiereTourHaut.hauteur;
             }
         }
         //On compte le nombre de pions énemis présent sur la colonne en partant de la tour vers le bas (seulement la premiere tour)
@@ -410,9 +416,10 @@ public class JoueurTowa implements IJoueurTowa {
             while (!plateau[j][coord.colonne].tourPresente() && j < plateau.length - 1) {
                 j++;
             }
-            if (plateau[j][coord.colonne].couleur != plateau[coord.ligne][coord.colonne].couleur
-                    && niveau(plateau[j][coord.colonne]) < niveau(plateau[coord.ligne][coord.colonne])) {
-                decompte += plateau[j][coord.colonne].hauteur;
+            Case premiereTourBas = plateau[j][coord.colonne];
+            if (premiereTourBas.couleur != casePlateau.couleur
+                    && niveau(premiereTourBas) < niveau(casePlateau)) {
+                decompte += premiereTourBas.hauteur;
             }
         }
         return decompte;
@@ -429,6 +436,7 @@ public class JoueurTowa implements IJoueurTowa {
      * colonne que la tour que l'on souhaite fusionner
      */
     static int colonneFusion(Coordonnees coord, Case[][] plateau) {
+        Case casePlateau = plateau[coord.ligne][coord.colonne];
         // Le decompte correspond au nombre de pions amis présent sur la colonne 
         int decompte = 0;
         //On compte le nombre de pions amis présent sur la colonne en partant de la tour vers le haut (seulement la premiere tour)
@@ -438,8 +446,9 @@ public class JoueurTowa implements IJoueurTowa {
             while (!plateau[i][coord.colonne].tourPresente() && i > 0) {
                 i--;
             }
-            if (plateau[i][coord.colonne].couleur == plateau[coord.ligne][coord.colonne].couleur) {
-                decompte += plateau[i][coord.colonne].hauteur;
+            Case premiereTourHaut = plateau[i][coord.colonne];
+            if (premiereTourHaut.couleur == casePlateau.couleur) {
+                decompte += premiereTourHaut.hauteur;
             }
         }
         //On compte le nombre de pions amis présent sur la colonne en partant de la tour vers le bas (seulement la premiere tour)
@@ -449,8 +458,9 @@ public class JoueurTowa implements IJoueurTowa {
             while (!plateau[j][coord.colonne].tourPresente() && j < plateau.length - 1) {
                 j++;
             }
-            if (plateau[j][coord.colonne].couleur == plateau[coord.ligne][coord.colonne].couleur) {
-                decompte += plateau[j][coord.colonne].hauteur;
+            Case premiereTourBas = plateau[j][coord.colonne];
+            if (premiereTourBas.couleur == casePlateau.couleur) {
+                decompte += premiereTourBas.hauteur;
             }
         }
         return decompte;
@@ -469,6 +479,7 @@ public class JoueurTowa implements IJoueurTowa {
      * moins haut que celle-ci
      */
     static int ligneActive(Coordonnees coord, Case[][] plateau) {
+        Case casePlateau = plateau[coord.ligne][coord.colonne];
         // Le decompte correspond au nombre de pions énemis présent sur la ligne 
         int decompte = 0;
         //On compte le nombre de pions énemis présent sur la ligne en partant de la tour vers la gauche (seulement la premiere tour)
@@ -478,9 +489,10 @@ public class JoueurTowa implements IJoueurTowa {
             while (!plateau[coord.ligne][i].tourPresente() && i > 0) {
                 i--;
             }
-            if (plateau[coord.ligne][i].couleur != plateau[coord.ligne][coord.colonne].couleur
-                    && niveau(plateau[coord.ligne][i]) < niveau(plateau[coord.ligne][coord.colonne])) {
-                decompte += plateau[coord.ligne][i].hauteur;
+            Case premiereTourGauche = plateau[coord.ligne][i];
+            if (premiereTourGauche.couleur != casePlateau.couleur
+                    && niveau(premiereTourGauche) < niveau(casePlateau)) {
+                decompte += premiereTourGauche.hauteur;
             }
         }
         //On compte le nombre de pions énemis présent sur la ligne en partant de la tour vers la droite (seulement la premiere tour)
@@ -490,9 +502,10 @@ public class JoueurTowa implements IJoueurTowa {
             while (!plateau[coord.ligne][j].tourPresente() && j < plateau.length - 1) {
                 j++;
             }
-            if (plateau[coord.ligne][j].couleur != plateau[coord.ligne][coord.colonne].couleur
-                    && niveau(plateau[coord.ligne][j]) < niveau(plateau[coord.ligne][coord.colonne])) {
-                decompte += plateau[coord.ligne][j].hauteur;
+            Case premiereTourDroite = plateau[coord.ligne][j];
+            if (premiereTourDroite.couleur != casePlateau.couleur
+                    && niveau(premiereTourDroite) < niveau(casePlateau)) {
+                decompte += premiereTourDroite.hauteur;
             }
         }
         return decompte;
@@ -509,6 +522,7 @@ public class JoueurTowa implements IJoueurTowa {
      * ligne que la tour que l'on souhaite fusionner
      */
     static int ligneFusion(Coordonnees coord, Case[][] plateau) {
+        Case casePlateau = plateau[coord.ligne][coord.colonne];
         // Le decompte correspond au nombre de pions amis présent sur la ligne 
         int decompte = 0;
         //On compte le nombre de pions amis présent sur la ligne en partant de la tour vers la gauche (seulement la premiere tour)
@@ -518,8 +532,9 @@ public class JoueurTowa implements IJoueurTowa {
             while (!plateau[coord.ligne][i].tourPresente() && i > 0) {
                 i--;
             }
-            if (plateau[coord.ligne][i].couleur == plateau[coord.ligne][coord.colonne].couleur) {
-                decompte += plateau[coord.ligne][i].hauteur;
+            Case premiereTourGauche = plateau[coord.ligne][i];
+            if (premiereTourGauche.couleur == casePlateau.couleur) {
+                decompte += premiereTourGauche.hauteur;
             }
         }
         //On compte le nombre de pions amis présent sur la ligne en partant de la tour vers la droite (seulement la premiere tour)
@@ -529,8 +544,9 @@ public class JoueurTowa implements IJoueurTowa {
             while (!plateau[coord.ligne][j].tourPresente() && j < plateau.length - 1) {
                 j++;
             }
-            if (plateau[coord.ligne][j].couleur == plateau[coord.ligne][coord.colonne].couleur) {
-                decompte += plateau[coord.ligne][j].hauteur;
+            Case premiereTourDroite = plateau[coord.ligne][j];
+            if (premiereTourDroite.couleur == casePlateau.couleur) {
+                decompte += premiereTourDroite.hauteur;
             }
         }
         return decompte;
@@ -547,14 +563,15 @@ public class JoueurTowa implements IJoueurTowa {
      * vide voisines d'un pions adversaire et 1 sinon
      */
     static int voisines(Coordonnees coord, Case[][] plateau, char couleurJoueur) {
+        Case casePlateau = plateau[coord.ligne][coord.colonne];
         int ajoutHauteur = 1;
         // On initialise le tableau contenant toutes les directions 
         int[][] toutesDirections = {{1, 1}, {1, 0}, {1, -1}, {0, 1}, {0, -1}, {-1, 1}, {-1, 0}, {-1, -1}};
         for (int[] toutesDirection : toutesDirections) {
             Coordonnees suivante = new Coordonnees(coord.ligne + toutesDirection[0], coord.colonne + toutesDirection[1]);
-            //Si la case est vide et que suivante est une tour adversaire, on pose 2 pions 
+            //Si la case est vide et que la suivante est une tour adversaire, on pose 2 pions 
             if (estDansPlateau(suivante, plateau)) {
-                if (!plateau[coord.ligne][coord.colonne].tourPresente() && plateau[suivante.ligne][suivante.colonne].tourPresente()
+                if (!casePlateau.tourPresente() && plateau[suivante.ligne][suivante.colonne].tourPresente() 
                         && plateau[suivante.ligne][suivante.colonne].couleur != couleurJoueur) {
                     ajoutHauteur = 2;
                 }
@@ -713,10 +730,14 @@ public class JoueurTowa implements IJoueurTowa {
      * une case pour ce plateau, ce joueur, dans ce niveau, faux sinon
      */
     boolean actionMagiePossible(Case[][] plateau, Coordonnees coord, char couleurJoueur) {
+        Case casePlateau = plateau[coord.ligne][coord.colonne];
         boolean correct = false;
-        if (plateau[coord.ligne][coord.colonne].couleur == couleurJoueur
-                && !symetrique(coord, plateau).tourPresente()
-                && ((plateau[coord.ligne][coord.colonne].hauteur + symetrique(coord, plateau).altitude)) <= 4) {
+        // l'action magie est possible si il s'agit d'une tour amis
+        if (casePlateau.couleur == couleurJoueur
+                // si la case symétrique est vide et qu'il s'agit d'une case de nature terre 
+                && !symetrique(coord, plateau).tourPresente() && symetrique(coord, plateau).nature == Case.CAR_TERRE
+                // si la somme de la hauteur de la tour et de l'atitude de la case symétrique est <=4
+                && ((casePlateau.hauteur + symetrique(coord, plateau).altitude)) <= 4) {
             correct = true;
         }
         return correct;
